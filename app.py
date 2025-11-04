@@ -2,7 +2,7 @@ from roboflow import Roboflow
 import cv2
 
 # Initialize Roboflow model once
-rf = Roboflow(api_key="CiTxkHxP8vZ02JBcprlA")
+rf = Roboflow(api_key="x")
 project = rf.workspace().project("student_detection-f0x91")
 model = project.version(4).model
 
@@ -106,4 +106,5 @@ while True:
         break
 
     else:
+
         print("❌ Invalid choice! Try again.")
