@@ -1,0 +1,41 @@
+# Flutter/Dart
+ui/myapp/.dart_tool/
+ui/myapp/.flutter-plugins
+ui/myapp/.flutter-plugins-dependencies
+ui/myapp/.packages
+ui/myapp/build/
+ui/myapp/.pub-cache/
+ui/myapp/.pub/
+
+# Python
+App_Back/Backend/.venv/
+App_Back/Backend/__pycache__/
+App_Back/Backend/**/__pycache__/
+App_Back/Backend/*.pyc
+App_Back/Backend/*.pyo
+App_Back/Backend/*.pyd
+App_Back/Backend/.Python
+App_Back/Backend/env/
+App_Back/Backend/venv/
+App_Back/Backend/.pytest_cache/
+*.egg-info/
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
