@@ -36,15 +36,15 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
           'Privacy & Security',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -149,7 +149,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
     );
@@ -159,13 +159,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -220,7 +220,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               child: ElevatedButton(
                 onPressed: _changePassword,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: const Color(0xFF00ADB5),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -248,29 +248,30 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
+        labelStyle: const TextStyle(color: Colors.white54),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: const Color(0xFF2A2A2A),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEEEEEE)),
+          borderSide: const BorderSide(color: Colors.white10),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEEEEEE)),
+          borderSide: const BorderSide(color: Colors.white10),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black, width: 2),
+          borderSide: const BorderSide(color: Color(0xFF00ADB5), width: 2),
         ),
         suffixIcon: IconButton(
           icon: Icon(
             obscureText
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            color: Colors.grey,
+            color: Colors.white54,
           ),
           onPressed: onToggleVisibility,
         ),
@@ -287,13 +288,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -305,26 +306,29 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
+          style: const TextStyle(fontSize: 13, color: Colors.white60),
         ),
         secondary: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF2A2A2A),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
-            color: value ? Colors.black : Colors.grey,
+            color: value ? const Color(0xFF00ADB5) : Colors.white30,
             size: 24,
           ),
         ),
-        activeThumbColor: Colors.black,
+        activeColor: const Color(0xFF00ADB5),
+        activeTrackColor: const Color(0xFF00ADB5).withOpacity(0.5),
+        inactiveThumbColor: Colors.white30,
+        inactiveTrackColor: Colors.white10,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
@@ -409,12 +413,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: Text(title, style: const TextStyle(color: Colors.white)),
+        content: Text(message, style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: Colors.black)),
+            child: const Text('OK', style: TextStyle(color: Color(0xFF00ADB5))),
           ),
         ],
       ),
@@ -425,14 +430,19 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: const Text(
+          'Delete Account',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Are you sure you want to permanently delete your account? This action cannot be undone.',
+          style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL', style: TextStyle(color: Colors.black)),
+            child: const Text('CANCEL', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {

@@ -49,16 +49,16 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
     final isMobile = screenWidth < 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF00ADB5).withOpacity(0.1),
+                color: const Color(0xFF00ADB5).withOpacity(0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -71,7 +71,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
             const Text(
               'Exam Seating Viewer',
               style: TextStyle(
-                color: Color(0xFF222831),
+                color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
@@ -89,7 +89,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
               );
             },
             icon: const Icon(Icons.admin_panel_settings),
-            color: const Color(0xFF222831),
+            color: Colors.white,
             tooltip: 'Management',
           ),
           IconButton(
@@ -100,7 +100,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
               );
             },
             icon: const Icon(Icons.person_outline),
-            color: const Color(0xFF222831),
+            color: Colors.white,
             tooltip: 'Profile',
           ),
           const SizedBox(width: 8),
@@ -189,16 +189,12 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF00ADB5), Color(0xFF00D9E1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00ADB5).withOpacity(0.3),
-            blurRadius: 12,
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
@@ -221,7 +217,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                 Text(
                   'Select date and session to view room allocations',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withOpacity(0.6),
                     fontSize: 14,
                   ),
                 ),
@@ -231,10 +227,14 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: const Color(0xFF00ADB5).withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.event_seat, color: Colors.white, size: 32),
+            child: const Icon(
+              Icons.event_seat,
+              color: Color(0xFF00ADB5),
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -245,13 +245,13 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -267,7 +267,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF222831),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -298,8 +298,15 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
     return Container(
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -311,7 +318,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           const SizedBox(height: 16),
           Text(
             'Loading rooms...',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            style: TextStyle(color: Colors.white60, fontSize: 14),
           ),
         ],
       ),
@@ -333,7 +340,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF222831),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -344,14 +351,14 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           Container(
             height: 500,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE0E0E0)),
+              border: Border.all(color: const Color(0xFF2A2A2A)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -364,13 +371,13 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                         Icon(
                           Icons.event_seat_outlined,
                           size: 64,
-                          color: Colors.grey[300],
+                          color: Colors.white24,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No preview loaded',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: Colors.white60,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -396,14 +403,14 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
   Widget _buildPlaceholder(String msg) => Container(
     padding: const EdgeInsets.all(32),
     decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: const Color(0xFFE0E0E0)),
+      color: const Color(0xFF1A1A1A),
+      border: Border.all(color: const Color(0xFF2A2A2A)),
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 2),
+          color: Colors.black.withOpacity(0.3),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
         ),
       ],
     ),
@@ -413,7 +420,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF00ADB5).withOpacity(0.1),
+            color: const Color(0xFF00ADB5).withOpacity(0.15),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -427,7 +434,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           msg,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.grey[700],
+            color: Colors.white60,
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
@@ -439,14 +446,14 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
   Widget _buildError(String msg) => Container(
     padding: const EdgeInsets.all(32),
     decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: Colors.red.shade200, width: 2),
+      color: const Color(0xFF1A1A1A),
+      border: Border.all(color: Colors.red.shade900.withOpacity(0.5), width: 2),
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.red.withOpacity(0.1),
-          blurRadius: 10,
-          offset: const Offset(0, 2),
+          color: Colors.red.withOpacity(0.2),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
         ),
       ],
     ),
@@ -456,12 +463,12 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.red.shade50,
+            color: Colors.red.shade900.withOpacity(0.3),
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.error_outline,
-            color: Colors.red.shade700,
+            color: Colors.red.shade400,
             size: 32,
           ),
         ),
@@ -470,7 +477,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           msg,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.red.shade800,
+            color: Colors.red.shade300,
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
@@ -505,7 +512,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF222831),
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -513,7 +520,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF00ADB5).withOpacity(0.1),
+                color: const Color(0xFF00ADB5).withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -576,19 +583,19 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF00ADB5)
-                : const Color(0xFFE0E0E0),
+                : const Color(0xFF2A2A2A),
             width: isSelected ? 2.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? const Color(0xFF00ADB5).withOpacity(0.2)
-                  : Colors.black.withOpacity(0.05),
+                  ? const Color(0xFF00ADB5).withOpacity(0.3)
+                  : Colors.black.withOpacity(0.3),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
             ),
@@ -606,7 +613,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00ADB5).withOpacity(0.1),
+                          color: const Color(0xFF00ADB5).withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -622,7 +629,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF222831),
+                            color: Colors.white,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -670,7 +677,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                       'Occupancy',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: Colors.white54,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -689,7 +696,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: occupancyPercent / 100,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: const Color(0xFF2A2A2A),
                     valueColor: AlwaysStoppedAnimation<Color>(statusColor),
                     minHeight: 8,
                   ),
@@ -731,7 +738,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                   tooltip: 'Download',
                   iconSize: 20,
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFF00ADB5).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF00ADB5).withOpacity(0.15),
                     padding: const EdgeInsets.all(8),
                   ),
                 ),
@@ -752,7 +759,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -767,7 +774,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                   label,
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.grey[600],
+                    color: Colors.white54,
                     fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -870,7 +877,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           maxScale: 5.0,
           boundaryMargin: const EdgeInsets.all(double.infinity),
           child: Container(
-            color: Colors.white,
+            color: const Color(0xFF0F0F0F),
             child: Center(
               child: SizedBox(
                 width: canvasSize.width,
@@ -880,8 +887,9 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                   allowDrawingOutsideViewBox: true,
                   clipBehavior: Clip.none,
                   fit: BoxFit.contain,
-                  placeholderBuilder: (BuildContext context) =>
-                      const Center(child: CircularProgressIndicator()),
+                  placeholderBuilder: (BuildContext context) => const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF00ADB5)),
+                  ),
                 ),
               ),
             ),
@@ -932,7 +940,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF222831),
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 8),
@@ -955,9 +963,11 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
+              color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE0E0E0)),
+              border: Border.all(
+                color: const Color(0xFF00ADB5).withOpacity(0.3),
+              ),
             ),
             child: Row(
               children: [
@@ -971,8 +981,8 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                     style: TextStyle(
                       fontSize: 15,
                       color: _selectedDate != null
-                          ? const Color(0xFF222831)
-                          : const Color(0xFF393E46),
+                          ? Colors.white
+                          : Colors.white54,
                     ),
                   ),
                 ),
@@ -993,7 +1003,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF222831),
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 8),
@@ -1025,13 +1035,13 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFF00ADB5).withOpacity(0.1)
-                : const Color(0xFFF5F5F5),
+                ? const Color(0xFF00ADB5).withOpacity(0.15)
+                : const Color(0xFF2A2A2A),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
                   ? const Color(0xFF00ADB5)
-                  : const Color(0xFFE0E0E0),
+                  : const Color(0xFF00ADB5).withOpacity(0.3),
               width: 2,
             ),
           ),
@@ -1042,9 +1052,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? const Color(0xFF00ADB5)
-                      : const Color(0xFF393E46),
+                  color: isSelected ? const Color(0xFF00ADB5) : Colors.white60,
                 ),
               ),
               const SizedBox(height: 4),
@@ -1052,9 +1060,7 @@ class _SeatingPageState extends ConsumerState<SeatingPage>
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected
-                      ? const Color(0xFF00ADB5)
-                      : const Color(0xFF393E46),
+                  color: isSelected ? const Color(0xFF00ADB5) : Colors.white54,
                 ),
               ),
             ],

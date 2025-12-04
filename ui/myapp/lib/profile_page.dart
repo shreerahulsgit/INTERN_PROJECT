@@ -32,21 +32,18 @@ class _ProfilePageState extends State<ProfilePage>
     super.build(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEEEEE),
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
           'Profile',
-          style: TextStyle(
-            color: Color(0xFF222831),
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            color: const Color(0xFF393E46),
+            color: Colors.white,
             onPressed: () async {
               // Navigate to edit profile page
               final result = await Navigator.push(
@@ -96,13 +93,13 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -156,18 +153,18 @@ class _ProfilePageState extends State<ProfilePage>
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF222831),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Professor, $_department',
-            style: const TextStyle(fontSize: 14, color: Color(0xFF393E46)),
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
           ),
           const SizedBox(height: 8),
           Text(
             _email,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF393E46)),
+            style: const TextStyle(fontSize: 13, color: Colors.white60),
           ),
         ],
       ),
@@ -185,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage>
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF1A1A1A),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -199,7 +196,7 @@ class _ProfilePageState extends State<ProfilePage>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
@@ -207,12 +204,15 @@ class _ProfilePageState extends State<ProfilePage>
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F7F7),
+                  color: const Color(0xFF2A2A2A),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.camera_alt, color: Colors.black),
+                child: const Icon(Icons.camera_alt, color: Color(0xFF00ADB5)),
               ),
-              title: const Text('Take Photo'),
+              title: const Text(
+                'Take Photo',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickImageFromCamera();
@@ -222,12 +222,18 @@ class _ProfilePageState extends State<ProfilePage>
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F7F7),
+                  color: const Color(0xFF2A2A2A),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.photo_library, color: Colors.black),
+                child: const Icon(
+                  Icons.photo_library,
+                  color: Color(0xFF00ADB5),
+                ),
               ),
-              title: const Text('Choose from Gallery'),
+              title: const Text(
+                'Choose from Gallery',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickImageFromGallery();
@@ -291,13 +297,13 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -309,7 +315,7 @@ class _ProfilePageState extends State<ProfilePage>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF222831),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 16),
@@ -338,17 +344,14 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: const Color(0xFF393E46).withOpacity(0.6),
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.white54),
                 ),
                 Text(
                   value,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF222831),
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -362,13 +365,13 @@ class _ProfilePageState extends State<ProfilePage>
   Widget _buildSettingsSection() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -452,17 +455,14 @@ class _ProfilePageState extends State<ProfilePage>
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF222831),
+          color: Colors.white,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 12,
-          color: const Color(0xFF393E46).withOpacity(0.6),
-        ),
+        style: const TextStyle(fontSize: 12, color: Colors.white54),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Color(0xFF393E46)),
+      trailing: const Icon(Icons.chevron_right, color: Colors.white54),
       onTap: onTap,
     );
   }
@@ -496,8 +496,12 @@ class _ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: const Text('Logout', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(color: Colors.white70),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

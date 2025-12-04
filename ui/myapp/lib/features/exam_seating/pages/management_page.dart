@@ -22,9 +22,9 @@ class _ExamSeatingManagementPageState extends State<ExamSeatingManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF00ADB5),
+        backgroundColor: const Color(0xFF1A1A1A),
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
@@ -44,7 +44,7 @@ class _ExamSeatingManagementPageState extends State<ExamSeatingManagementPage> {
   Widget _buildTabBar() {
     final tabs = ['Rooms', 'Students', 'Exams', 'Seating Results'];
     return Container(
-      color: Colors.white,
+      color: const Color(0xFF1A1A1A),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -74,7 +74,7 @@ class _ExamSeatingManagementPageState extends State<ExamSeatingManagementPage> {
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected
                         ? const Color(0xFF00ADB5)
-                        : const Color(0xFF393E46),
+                        : Colors.white54,
                   ),
                 ),
               ),
@@ -128,7 +128,7 @@ class _RoomsTabState extends ConsumerState<RoomsTab> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF222831),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -150,9 +150,16 @@ class _RoomsTabState extends ConsumerState<RoomsTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,7 +173,7 @@ class _RoomsTabState extends ConsumerState<RoomsTab> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF222831),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -174,7 +181,7 @@ class _RoomsTabState extends ConsumerState<RoomsTab> {
           const SizedBox(height: 8),
           const Text(
             'CSV format: code, capacity, rows (optional), columns (optional)',
-            style: TextStyle(fontSize: 13, color: Color(0xFF393E46)),
+            style: TextStyle(fontSize: 13, color: Colors.white60),
           ),
           const SizedBox(height: 12),
           Row(
@@ -278,15 +285,19 @@ B201,35,5,7''';
         final room = rooms[index];
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: const Color(0xFF00ADB5).withOpacity(0.1),
+            backgroundColor: const Color(0xFF00ADB5).withOpacity(0.15),
             child: const Icon(Icons.meeting_room, color: Color(0xFF00ADB5)),
           ),
           title: Text(
             room.code,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
           subtitle: Text(
             'Capacity: ${room.capacity}${room.rows != null && room.columns != null ? ' | Layout: ${room.rows}×${room.columns}' : ''}',
+            style: const TextStyle(color: Colors.white60),
           ),
           trailing: room.rows != null && room.columns != null
               ? const Icon(Icons.grid_on, color: Color(0xFF00ADB5))
@@ -301,12 +312,9 @@ B201,35,5,7''';
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+          Icon(Icons.inbox, size: 64, color: Colors.white24),
           const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-          ),
+          Text(message, style: TextStyle(fontSize: 16, color: Colors.white60)),
         ],
       ),
     );
@@ -317,16 +325,16 @@ B201,35,5,7''';
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
           const SizedBox(height: 16),
           Text(
             'Error loading rooms',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 16, color: Colors.white60),
           ),
           const SizedBox(height: 8),
           Text(
             error,
-            style: const TextStyle(fontSize: 12, color: Colors.red),
+            style: TextStyle(fontSize: 12, color: Colors.red.shade300),
             textAlign: TextAlign.center,
           ),
         ],
@@ -368,7 +376,7 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF222831),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -382,9 +390,16 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +413,7 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF222831),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -406,7 +421,7 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
           const SizedBox(height: 8),
           const Text(
             'CSV format: register_no, name, department_code, department_name, batch_year',
-            style: TextStyle(fontSize: 13, color: Color(0xFF393E46)),
+            style: TextStyle(fontSize: 13, color: Colors.white60),
           ),
           const SizedBox(height: 12),
           Row(
@@ -531,11 +546,11 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.people_outline, size: 64, color: Colors.grey[300]),
+                  Icon(Icons.people_outline, size: 64, color: Colors.white24),
                   const SizedBox(height: 16),
                   Text(
                     'No students found',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 16, color: Colors.white60),
                   ),
                 ],
               ),
@@ -547,7 +562,7 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
                 final student = students[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: const Color(0xFF00ADB5).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF00ADB5).withOpacity(0.15),
                     child: Text(
                       student.name[0].toUpperCase(),
                       style: const TextStyle(
@@ -558,10 +573,14 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
                   ),
                   title: Text(
                     student.name,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                   subtitle: Text(
                     '${student.registerNo} | ${student.departmentCode ?? 'No Dept'} | Batch: ${student.batchYear ?? 'N/A'}',
+                    style: const TextStyle(color: Colors.white60),
                   ),
                 );
               },
@@ -571,9 +590,12 @@ class _StudentsTabState extends ConsumerState<StudentsTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
             const SizedBox(height: 16),
-            Text('Error: $error'),
+            Text(
+              'Error: $error',
+              style: const TextStyle(color: Colors.white60),
+            ),
           ],
         ),
       ),
@@ -656,7 +678,7 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF222831),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -670,14 +692,14 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
                           Icon(
                             Icons.event_note,
                             size: 64,
-                            color: Colors.grey[300],
+                            color: Colors.white24,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'No exams scheduled',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: Colors.white60,
                             ),
                           ),
                         ],
@@ -692,7 +714,7 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
                           leading: CircleAvatar(
                             backgroundColor: const Color(
                               0xFF00ADB5,
-                            ).withOpacity(0.1),
+                            ).withOpacity(0.15),
                             child: const Icon(
                               Icons.description,
                               color: Color(0xFF00ADB5),
@@ -700,15 +722,24 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
                           ),
                           title: Text(
                             '${exam.subjectCode} - ${exam.subjectName}',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Date: ${exam.examDate} | ${exam.session}'),
+                              Text(
+                                'Date: ${exam.examDate} | ${exam.session}',
+                                style: const TextStyle(color: Colors.white60),
+                              ),
                               Text(
                                 'Depts: ${exam.departmentsPreview}',
-                                style: const TextStyle(fontSize: 12),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white54,
+                                ),
                               ),
                             ],
                           ),
@@ -721,13 +752,16 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red,
+                      color: Colors.red.shade400,
                     ),
                     const SizedBox(height: 16),
-                    Text('Error: $error'),
+                    Text(
+                      'Error: $error',
+                      style: const TextStyle(color: Colors.white60),
+                    ),
                   ],
                 ),
               ),
@@ -742,9 +776,16 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -758,7 +799,7 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF222831),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -766,7 +807,7 @@ class _ExamsTabState extends ConsumerState<ExamsTab> {
           const SizedBox(height: 8),
           const Text(
             'CSV format: subject_code, subject_name, exam_date (YYYY-MM-DD), session (FN/AN), department_batches (CSE:2023,IT:2024)',
-            style: TextStyle(fontSize: 13, color: Color(0xFF393E46)),
+            style: TextStyle(fontSize: 13, color: Colors.white60),
           ),
           const SizedBox(height: 12),
           Row(
@@ -923,9 +964,11 @@ class _SeatingResultsTabState extends ConsumerState<SeatingResultsTab> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
+                    color: const Color(0xFF2A2A2A),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    border: Border.all(
+                      color: const Color(0xFF00ADB5).withOpacity(0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -938,7 +981,10 @@ class _SeatingResultsTabState extends ConsumerState<SeatingResultsTab> {
                         _selectedDate != null
                             ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
                             : 'Select date',
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -1061,10 +1107,22 @@ class _SeatingResultsTabState extends ConsumerState<SeatingResultsTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: const Center(child: Text('Seating preview will appear here')),
+      child: Center(
+        child: Text(
+          'Seating preview will appear here',
+          style: const TextStyle(color: Colors.white60),
+        ),
+      ),
     );
   }
 

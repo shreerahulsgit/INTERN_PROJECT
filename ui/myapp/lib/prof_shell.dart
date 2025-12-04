@@ -151,17 +151,17 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFEEEEEE),
+        backgroundColor: const Color(0xFF0F0F0F),
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(42),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1A1A),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -174,14 +174,14 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.person_outline, color: Color(0xFF222831)),
+                    const Icon(Icons.person_outline, color: Colors.white),
                     const SizedBox(width: 8),
                     const Text(
                       'Logged in as Guest',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF222831),
+                        color: Colors.white,
                       ),
                     ),
                     const Spacer(),
@@ -191,10 +191,10 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00ADB5).withOpacity(0.12),
+                        color: const Color(0xFF00ADB5).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF00ADB5).withOpacity(0.4),
+                          color: const Color(0xFF00ADB5).withOpacity(0.5),
                         ),
                       ),
                       child: const Row(
@@ -265,7 +265,7 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
     return NavigationRail(
       selectedIndex: _clampIndex(_currentIndex, 5),
       onDestinationSelected: _selectTab,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF1A1A1A),
       selectedIconTheme: const IconThemeData(
         color: Color(0xFF00ADB5),
         size: 28,
@@ -274,13 +274,8 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
         color: Color(0xFF00ADB5),
         fontWeight: FontWeight.w600,
       ),
-      unselectedIconTheme: IconThemeData(
-        color: const Color(0xFF393E46).withOpacity(0.6),
-        size: 24,
-      ),
-      unselectedLabelTextStyle: TextStyle(
-        color: const Color(0xFF393E46).withOpacity(0.6),
-      ),
+      unselectedIconTheme: const IconThemeData(color: Colors.white30, size: 24),
+      unselectedLabelTextStyle: const TextStyle(color: Colors.white30),
       labelType: NavigationRailLabelType.all,
       elevation: 2,
       destinations: [
@@ -314,73 +309,127 @@ class _ProfShellState extends State<ProfShell> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomNavBar() {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        child: NavigationBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          selectedIndex: _clampIndex(_currentIndex, 5),
-          onDestinationSelected: _selectTab,
-          indicatorColor: const Color(0xFF00ADB5).withOpacity(0.15),
+      child: SafeArea(
+        child: Container(
           height: 65,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          animationDuration: const Duration(milliseconds: 300),
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              selectedIcon: const Icon(Icons.home),
-              label: 'Home',
-              tooltip: 'Welcome + overview',
-            ),
-            NavigationDestination(
-              icon: _buildBadge(
-                Icons.fact_check_outlined,
-                _attendanceBadgeCount,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                index: 0,
+                icon: Icons.home_outlined,
+                selectedIcon: Icons.home,
+                label: 'Home',
               ),
-              selectedIcon: _buildBadge(
-                Icons.fact_check,
-                _attendanceBadgeCount,
+              _buildNavItem(
+                index: 1,
+                icon: Icons.fact_check_outlined,
+                selectedIcon: Icons.fact_check,
+                label: 'Attendance',
+                hasBadge: true,
               ),
-              label: 'Attendance',
-              tooltip: 'Quick take attendance',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.meeting_room_outlined),
-              selectedIcon: Icon(Icons.meeting_room),
-              label: 'Occupancy',
-              tooltip: 'Lab & class occupancy',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.event_seat_outlined),
-              selectedIcon: Icon(Icons.event_seat),
-              label: 'Seating',
-              tooltip: 'Exam seating arrangement',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.calendar_today_outlined),
-              selectedIcon: Icon(Icons.calendar_today),
-              label: 'Timetable',
-              tooltip: 'View weekly timetable',
-            ),
-          ],
+              _buildNavItem(
+                index: 2,
+                icon: Icons.meeting_room_outlined,
+                selectedIcon: Icons.meeting_room,
+                label: 'Occupancy',
+              ),
+              _buildNavItem(
+                index: 3,
+                icon: Icons.event_seat_outlined,
+                selectedIcon: Icons.event_seat,
+                label: 'Seating',
+              ),
+              _buildNavItem(
+                index: 4,
+                icon: Icons.calendar_today_outlined,
+                selectedIcon: Icons.calendar_today,
+                label: 'Timetable',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required IconData selectedIcon,
+    required String label,
+    bool hasBadge = false,
+  }) {
+    final isSelected = _currentIndex == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => _selectTab(index),
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFF00ADB5).withOpacity(0.15)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedScale(
+                scale: isSelected ? 1.1 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: hasBadge
+                    ? _buildBadge(
+                        isSelected ? selectedIcon : icon,
+                        _attendanceBadgeCount,
+                      )
+                    : Icon(
+                        isSelected ? selectedIcon : icon,
+                        color: isSelected
+                            ? const Color(0xFF00ADB5)
+                            : Colors.white30,
+                        size: isSelected ? 26 : 24,
+                      ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  color: isSelected ? const Color(0xFF00ADB5) : Colors.white70,
+                  fontSize: isSelected ? 11 : 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
