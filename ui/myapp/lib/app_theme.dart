@@ -9,7 +9,7 @@ class AppTheme {
     0xFFFFFFFF,
   ); // Primary background - white
   static const Color backgroundGradient = Color(
-    0xFFF5F5F5,
+    0xFF12121,
   ); // Subtle gradient accent
   static const Color primaryDark = Color(0xFF222831); // Text and UI elements
   static const Color neutral = Color(0xFF393E46); // Secondary text

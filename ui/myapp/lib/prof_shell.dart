@@ -31,7 +31,7 @@ import 'home_page.dart';
 import 'attendance_page.dart';
 import 'occupancy_page.dart';
 import 'features/exam_seating/pages/seating_page.dart';
-import 'features/timetable/timetable_page.dart';
+import 'timetable_page.dart';
 
 class ProfShell extends StatefulWidget {
   const ProfShell({super.key});

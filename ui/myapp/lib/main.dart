@@ -2,16 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/api_client.dart';
 import 'core/token_storage.dart';
-import 'prof_shell.dart';
-import 'management_login_page.dart';
 import 'home_page.dart';
-
+import 'login_page.dart';
 import 'timetable_page.dart';
-
-// Removed: modern_landing_page.dart, login_selection_page.dart (auth disabled)
-// Authentication pages (now bypassed). Keeping imports commented for future restoration.
-// import 'student_login_page.dart';
-// import 'staff_login_page.dart';
+import 'prof_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,29 +25,46 @@ class CampusConnectApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'CampusConnect',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFEEEEEE),
-        primaryColor: const Color(0xFF222831),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        primaryColor: const Color(0xFF00ADB5),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E1E1E),
+          elevation: 1,
+          titleTextStyle: TextStyle(
+            color: Color(0xFF00ADB5),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        colorScheme: ColorScheme.dark(
+          primary: const Color(0xFF00ADB5),
           secondary: const Color(0xFF00ADB5),
         ),
-        fontFamily: 'Poppins',
         textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Color(0xFF222831)),
+          bodyMedium: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white),
+          bodySmall: TextStyle(color: Colors.white70),
+          titleMedium: TextStyle(color: Colors.white),
+        ),
+        cardColor: const Color(0xFF1E1E1E),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFF00ADB5),
+          foregroundColor: Colors.white,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1E1E1E),
+          selectedItemColor: Color(0xFF00ADB5),
+          unselectedItemColor: Colors.white54,
         ),
       ),
-      // Auth removed: start directly at home
+      // Start at login page
       initialRoute: '/home',
       routes: {
-        // '/': (context) => const ModernLandingPage(),
-        // '/loginSelection': (context) => const LoginSelectionPage(),
-        // '/studentLogin': (context) => const StudentLoginPage(),
-        // '/staffLogin': (context) => const StaffLoginPage(),
-         '/home': (_) => const HomePage(),
-        '/managementLogin': (context) => const ManagementLoginPage(),
        
+        '/home': (context) => const HomePage(),
       },
-      
     );
   }
 }

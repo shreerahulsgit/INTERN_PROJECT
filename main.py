@@ -1,11 +1,10 @@
+# main.py
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 import threading
-import os
-import json
 from pathlib import Path
 from threading import Lock
 
@@ -27,7 +26,7 @@ TRACK_CONSECUTIVE_FRAMES_TO_COUNT = 12
 TRACK_MAX_AGE = 18
 MODEL_PATH = r"models/yolov8n.pt"
 
-# Try a few fallbacks if MODEL_PATH doesn't exist
+# Fallbacks if model not found
 if not Path(MODEL_PATH).exists():
     if Path('yolov8n.pt').exists():
         MODEL_PATH = 'yolov8n.pt'
@@ -37,10 +36,9 @@ if not Path(MODEL_PATH).exists():
         print(f"WARNING: Model not found at {MODEL_PATH}. Ensure yolov8n.pt exists.")
 
 # --------------------------
-# FastAPI setup
+# FastAPI Setup
 # --------------------------
-app = FastAPI()
-
+app = FastAPI(title="YOLO + DeepSORT Backend")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -70,7 +68,7 @@ tracker = DeepSort(
 )
 
 # --------------------------
-# Helper function to convert YOLO predictions
+# Helper function
 # --------------------------
 def convert_yolo_predictions(results):
     detections = []
@@ -96,7 +94,7 @@ def convert_yolo_predictions(results):
     return sorted(detections, key=lambda x: x[0][0])
 
 # --------------------------
-# Video processing thread
+# Video processing
 # --------------------------
 def process_video():
     global current_count, processing, VIDEO_PATH
@@ -136,17 +134,13 @@ def process_video():
         for t in tracks:
             if not t.is_confirmed():
                 continue
-
             tid = t.track_id
             seen_this_frame.add(tid)
-
             if last_seen_frame_idx.get(tid, 0) == frame_idx - 1:
                 consecutive_seen[tid] = consecutive_seen.get(tid, 0) + 1
             else:
                 consecutive_seen[tid] = 1
-
             last_seen_frame_idx[tid] = frame_idx
-
             if consecutive_seen[tid] >= TRACK_CONSECUTIVE_FRAMES_TO_COUNT:
                 confirmed_ids.add(tid)
 
@@ -169,10 +163,8 @@ def process_video():
     print("✔ Final Student Count:", current_count)
 
 # --------------------------
-# API ENDPOINTS
+# API Endpoints
 # --------------------------
-
-# 1️⃣ Process video via JSON URL/path
 @app.post("/process_video_url")
 async def start_processing_json(request: Request):
     global VIDEO_PATH, processing
@@ -189,7 +181,6 @@ async def start_processing_json(request: Request):
     threading.Thread(target=process_video, daemon=True).start()
     return {"status": "processing_started"}
 
-# 2️⃣ Process video via uploaded file
 @app.post("/process_video_file")
 async def process_video_file(file: UploadFile = File(...)):
     global VIDEO_PATH, processing
@@ -206,19 +197,11 @@ async def process_video_file(file: UploadFile = File(...)):
     threading.Thread(target=process_video, daemon=True).start()
     return {"status": "processing_started"}
 
-# 3️⃣ Get current count
 @app.get("/count")
 def get_current_count():
     with _state_lock:
         return {"count": current_count, "processing": processing}
 
-
-if __name__ == '__main__':
-    # Allow running the FastAPI app directly with python main.py
-    try:
-        import uvicorn
-        print("Starting uvicorn HTTP server on 0.0.0.0:8000")
-        uvicorn.run("main:app", host="0.0.0.0", port=8000)
-    except Exception as e:
-        print("uvicorn is not available or failed to start:", e)
-        print("You can start the server with: uvicorn main:app --host 0.0.0.0 --port 8000")
+@app.get("/example")
+def test():
+    return {"msg": "ok"}

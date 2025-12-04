@@ -1,3 +1,4 @@
+# app.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -27,7 +28,7 @@ class TimetableRequest(BaseModel):
 # ------------------------
 # FastAPI Setup
 # ------------------------
-app = FastAPI()
+app = FastAPI(title="Timetable Generator")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -84,34 +85,33 @@ def ga_optimize(timetable):
     # Generate initial population
     population = [copy.deepcopy(timetable) for _ in range(10)]
 
-    for generation in range(50):  # 50 generations
+    for generation in range(50):
         population.sort(key=lambda t: fitness(t), reverse=True)
-        # crossover top 2
         parent1, parent2 = population[0], population[1]
         child = copy.deepcopy(parent1)
-        # swap random day
         swap_day = random.choice(DAYS)
         for dept in timetable.keys():
             child[dept][swap_day], parent2[dept][swap_day] = parent2[dept][swap_day], child[dept][swap_day]
         population[-1] = child
         # mutation
         mut_day = random.choice(DAYS)
-        mut_period = random.choice([p for p in PERIODS if p not in ["break","lunch"]])
         for dept, days in child.items():
             day_schedule = days[mut_day]
-            # swap two sessions randomly
             p1, p2 = random.sample([p for p in PERIODS if p not in ["break","lunch"]], 2)
             day_schedule[p1], day_schedule[p2] = day_schedule[p2], day_schedule[p1]
 
-    # Return best
     population.sort(key=lambda t: fitness(t), reverse=True)
     return population[0]
 
 # ------------------------
-# API Endpoint
+# API Endpoints
 # ------------------------
 @app.post("/generate_timetable")
 def generate_timetable(req: TimetableRequest):
     csp_timetable = apply_csp(req)
     optimized = ga_optimize(csp_timetable)
     return JSONResponse(optimized)
+
+@app.get("/example")
+def test():
+    return {"msg": "ok"}

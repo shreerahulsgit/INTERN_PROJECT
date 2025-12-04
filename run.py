@@ -1,40 +1,45 @@
 # main.py
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
+from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
 import sqlite3
 import random
 
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
 
 # -----------------------
 # CONFIG
 # -----------------------
 DB_PATH = "campus_connect.db"
-JWT_SECRET = "replace-this-with-a-secure-random-secret"  # change before production
+JWT_SECRET = "replace-this-with-a-secure-random-secret"  # replace in production
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 # -----------------------
 # FastAPI init
 # -----------------------
-app = FastAPI()
+app = FastAPI(title="CampusConnect Backend")
+
+# -----------------------
+# Enable CORS
+# -----------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change in production
+    allow_origins=["*"],  # restrict in production
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # -----------------------
-# DB (sqlite)
+# Database (SQLite)
 # -----------------------
 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
 cur = conn.cursor()
 
-cur.execute(
-    """
+# Staff table
+cur.execute("""
 CREATE TABLE IF NOT EXISTS staff (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
@@ -42,11 +47,10 @@ CREATE TABLE IF NOT EXISTS staff (
     department TEXT,
     otp INTEGER
 )
-"""
-)
+""")
 
-cur.execute(
-    """
+# Student table
+cur.execute("""
 CREATE TABLE IF NOT EXISTS student (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
@@ -55,8 +59,8 @@ CREATE TABLE IF NOT EXISTS student (
     year TEXT,
     otp INTEGER
 )
-"""
-)
+""")
+
 conn.commit()
 
 # -----------------------
@@ -123,17 +127,26 @@ def find_user_by_email(email: str) -> Optional[Dict[str, Any]]:
         return {"role": "student", "record": {"id": r[0], "email": r[1], "name": r[2], "department": r[3], "year": r[4]}}
     return None
 
-# -----------------------
-# Health
-# -----------------------
-@app.get("/health")
-def health():
-    return {"ok": True, "db": "connected"}
+def _extract_bearer(request: Request) -> Optional[str]:
+    auth = request.headers.get("authorization")
+    if not auth:
+        return None
+    parts = auth.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        return None
+    return parts[1]
 
 # -----------------------
-# STAFF OTP / VERIFY / REGISTER
+# Routers
 # -----------------------
-@app.post("/api/staff/send_otp")
+staff_router = APIRouter(prefix="/api/staff", tags=["Staff"])
+student_router = APIRouter(prefix="/api/student", tags=["Student"])
+auth_router = APIRouter(prefix="/api/auth", tags=["Auth"])
+
+# -----------------------
+# Staff endpoints
+# -----------------------
+@staff_router.post("/send_otp")
 def send_staff_otp(data: EmailSchema):
     email = data.email.lower().strip()
     if not email.endswith("@citchennai.net"):
@@ -149,7 +162,7 @@ def send_staff_otp(data: EmailSchema):
     print(f"[STAFF OTP] {email} -> {otp}")
     return {"detail": "OTP sent", "otp": otp}
 
-@app.post("/api/staff/verify_otp")
+@staff_router.post("/verify_otp")
 def verify_staff_otp(data: OTPVerifySchema):
     cur.execute("SELECT otp FROM staff WHERE email=?", (data.email.lower().strip(),))
     row = cur.fetchone()
@@ -159,34 +172,15 @@ def verify_staff_otp(data: OTPVerifySchema):
     conn.commit()
     return {"detail": "OTP verified"}
 
-@app.post("/api/staff/register")
-def register_staff(data: StaffRegisterSchema):
-    email = data.email.lower().strip()
-    cur.execute("SELECT otp, name FROM staff WHERE email=?", (email,))
-    row = cur.fetchone()
-    if not row:
-        raise HTTPException(status_code=400, detail="Email not found; request OTP first")
-    if row[0] is not None:
-        raise HTTPException(status_code=400, detail="Email not verified; verify OTP first")
-    if row[1] is not None:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    cur.execute("UPDATE staff SET name=?, department=? WHERE email=?", (data.name, data.department, email))
-    conn.commit()
-    return {"detail": "Staff registered"}
-
 # -----------------------
-# STUDENT OTP / VERIFY / REGISTER
+# Student endpoints
 # -----------------------
-@app.post("/api/student/send_otp")
+@student_router.post("/send_otp")
 def send_student_otp(data: EmailSchema):
     email = data.email.lower().strip()
-    cur.execute("SELECT name FROM student WHERE email=?", (email,))
-    existing = cur.fetchone()
-    if existing and existing[0] is not None:
-        raise HTTPException(status_code=400, detail="Email already registered")
     local = email.split("@")[0]
     if not email.endswith("@citchennai.net") or "." not in local:
-        raise HTTPException(status_code=400, detail="Invalid student email (use name.deptYear@citchennai.net)")
+        raise HTTPException(status_code=400, detail="Invalid student email")
     otp = generate_otp()
     cur.execute("SELECT id FROM student WHERE email=?", (email,))
     row = cur.fetchone()
@@ -198,7 +192,7 @@ def send_student_otp(data: EmailSchema):
     print(f"[STUDENT OTP] {email} -> {otp}")
     return {"detail": "OTP sent", "otp": otp}
 
-@app.post("/api/student/verify_otp")
+@student_router.post("/verify_otp")
 def verify_student_otp(data: OTPVerifySchema):
     cur.execute("SELECT otp FROM student WHERE email=?", (data.email.lower().strip(),))
     row = cur.fetchone()
@@ -208,52 +202,10 @@ def verify_student_otp(data: OTPVerifySchema):
     conn.commit()
     return {"detail": "OTP verified"}
 
-@app.post("/api/student/register")
-def register_student(data: StudentRegisterSchema):
-    email = data.email.lower().strip()
-    cur.execute("SELECT name, otp FROM student WHERE email=?", (email,))
-    row = cur.fetchone()
-    if not row:
-        raise HTTPException(status_code=400, detail="Email not found; request OTP first")
-    if row[0] is not None:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    if row[1] is not None:
-        raise HTTPException(status_code=400, detail="Email not verified; verify OTP first")
-    cur.execute("UPDATE student SET name=?, department=?, year=? WHERE email=?", (data.name, data.department, data.year, email))
-    conn.commit()
-    return {"detail": "Student registered"}
-
 # -----------------------
-# Login -> issue JWT for registered users
-
+# Auth endpoints (login)
 # -----------------------
-@app.post("/api/staff/resend_otp")
-def resend_staff_otp(data: EmailSchema):
-    email = data.email.lower().strip()
-    cur.execute("SELECT id FROM staff WHERE email=?", (email,))
-    row = cur.fetchone()
-    if not row:
-        raise HTTPException(status_code=400, detail="Email not found; request OTP first")
-    
-    otp = generate_otp()
-    cur.execute("UPDATE staff SET otp=? WHERE email=?", (otp, email))
-    conn.commit()
-    print(f"[STAFF RESEND OTP] {email} -> {otp}")
-    return {"detail": "OTP resent", "otp": otp}
-@app.post("/api/student/resend_otp")
-def resend_student_otp(data: EmailSchema):
-    email = data.email.lower().strip()
-    cur.execute("SELECT id FROM student WHERE email=?", (email,))
-    row = cur.fetchone()
-    if not row:
-        raise HTTPException(status_code=400, detail="Email not found; request OTP first")
-    
-    otp = generate_otp()
-    cur.execute("UPDATE student SET otp=? WHERE email=?", (otp, email))
-    conn.commit()
-    print(f"[STUDENT RESEND OTP] {email} -> {otp}")
-    return {"detail": "OTP resent", "otp": otp}
-@app.post("/api/auth/login", response_model=TokenResponse)
+@auth_router.post("/login", response_model=TokenResponse)
 def login(req: LoginRequest):
     email = req.email.lower().strip()
     user = find_user_by_email(email)
@@ -268,62 +220,20 @@ def login(req: LoginRequest):
         "role": role,
         "name": rec.get("name"),
     }
-    token = create_access_token(payload, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    token = create_access_token(payload)
     expires_at = int((datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp())
     return {"access_token": token, "token_type": "bearer", "expires_at": expires_at}
 
 # -----------------------
-# Protected route example
+# Include Routers
 # -----------------------
-def _extract_bearer(request: Request) -> Optional[str]:
-    auth = request.headers.get("authorization")
-    if not auth:
-        return None
-    parts = auth.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        return None
-    return parts[1]
-
-@app.get("/api/me")
-def me(request: Request):
-    token = _extract_bearer(request)
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    email = payload.get("sub")
-    user = find_user_by_email(email)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"user": user}
+app.include_router(staff_router)
+app.include_router(student_router)
+app.include_router(auth_router)
 
 # -----------------------
-# Simple admin listing endpoints
+# Health check
 # -----------------------
-@app.get("/api/staff")
-def list_staff():
-    cur.execute("SELECT id, email, name, department FROM staff")
-    rows = cur.fetchall()
-    return {"staff": [{"id": r[0], "email": r[1], "name": r[2], "department": r[3]} for r in rows]}
-
-@app.get("/api/student")
-def list_students():
-    cur.execute("SELECT id, email, name, department, year FROM student")
-    rows = cur.fetchall()
-    return {"students": [{"id": r[0], "email": r[1], "name": r[2], "department": r[3], "year": r[4]} for r in rows]}
-
-# -----------------------
-# Run notes
-# -----------------------
-# Start server with custom port NUM (replace NUM with your desired port):
-#   uvicorn main:app --reload --host 0.0.0.0 --port NUM
-# Example:
-#   uvicorn main:app --reload --host 0.0.0.0 --port 5000
-# In emulator use base URL http://10.0.2.2:5000
-# For production:
-# - Replace JWT_SECRET with a secure value (from env)
-# - Use HTTPS
-# - Remove OTP echoes and integrate real email sending
-# - Tighten CORS origins
+@app.get("/health")
+def health():
+    return {"ok": True, "db": "connected"}

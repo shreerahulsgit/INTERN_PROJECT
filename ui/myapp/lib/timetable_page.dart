@@ -431,7 +431,7 @@ class _TimetablePageState extends State<TimetablePage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Timetable (Local CSP + GA)'),
+        title: const Text('Generate Student TimeTable'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

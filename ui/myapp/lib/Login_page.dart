@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Campus Connect',
       theme: ThemeData(
         useMaterial3: true,
@@ -99,6 +100,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           body: json.encode({'email': email}));
       if (res.statusCode == 200) {
         _showSnack('OTP sent to $email.');
+        if (!mounted) return;
         setState(() => _currentStep = 1);
       } else {
         final body = json.decode(res.body);
@@ -107,6 +109,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       _showSnack('Request failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }
@@ -125,6 +128,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           body: json.encode({'email': email, 'otp': otp}));
       if (res.statusCode == 200) {
         _showSnack('OTP verified.');
+        if (!mounted) return;
         setState(() => _currentStep = 2);
       } else {
         final body = json.decode(res.body);
@@ -133,6 +137,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       _showSnack('Request failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }
@@ -153,6 +158,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           body: json.encode(body));
       if (res.statusCode == 200) {
         _showSnack('Registration Successful.');
+        if (!mounted) return;
         _showLoginDialog(email);
       } else {
         final b = json.decode(res.body);
@@ -161,13 +167,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       _showSnack('Request failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }
 
   Future<void> _loginUser(String email) async {
     setState(() => _loading = true);
-    final url = Uri.parse('$backendBase/api/$role/login'); 
+    final url = Uri.parse('$backendBase/api/$role/login');
     try {
       final res = await http.post(url,
           headers: {'Content-Type': 'application/json'},
@@ -186,38 +193,44 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       _showSnack('Request failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }
 
   void _showLoginDialog(String email) {
-    showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFF0B2430),
-            title: const Text('Login', style: TextStyle(color: Colors.white)),
-            content: const Text('Do you want to login now?',
-                style: TextStyle(color: Colors.white70)),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.redAccent))),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await _loginUser(email);
-                },
-                child:
-                    const Text('Login', style: TextStyle(color: Colors.greenAccent)),
-              ),
-            ],
-          );
-        });
-  }
+  showDialog(
+    context: context, // page context
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF0B2430),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text('Login', style: TextStyle(color: Colors.white)),
+        content: const Text('Do you want to login now?', style: TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext), // just close dialog
+            child: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext); // close dialog first
+              // Navigate in next frame
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                Navigator.pushReplacement(
+                  context, // use page context, not dialogContext
+                  MaterialPageRoute(builder: (_) => const HomePage()),
+                );
+              });
+            },
+            child: const Text('Login', style: TextStyle(color: Colors.greenAccent)),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void _showLoginEmailDialog() {
     final _loginEmailController = TextEditingController();
@@ -263,6 +276,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _resetAll() {
+    if (!mounted) return;
     setState(() {
       _currentStep = 0;
       _emailController.clear();

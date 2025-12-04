@@ -14,7 +14,7 @@ class OccupancyPage extends StatefulWidget {
 
 class _OccupancyPageState extends State<OccupancyPage>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  final String backend = getBackendBaseUrl(); // backend URL helper
+  final String backend = getBackendBaseUrl();
 
   int labA1 = 0, labA2 = 0, labB1 = 0, labB2 = 0, labC1 = 0;
   bool processing = false;
@@ -39,9 +39,6 @@ class _OccupancyPageState extends State<OccupancyPage>
     super.dispose();
   }
 
-  // ------------------------
-  // Poll backend every 1 sec
-  // ------------------------
   void startPolling() {
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       try {
@@ -49,12 +46,16 @@ class _OccupancyPageState extends State<OccupancyPage>
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
           setState(() {
-            labA1 = data["count"]; // Assuming one video at a time
-            processing = data["processing"];
+            labA1 = data["labA1"] ?? 0;
+            labA2 = data["labA2"] ?? 0;
+            labB1 = data["labB1"] ?? 0;
+            labB2 = data["labB2"] ?? 0;
+            labC1 = data["labC1"] ?? 0;
+            processing = data["processing"] ?? false;
           });
         }
       } catch (e) {
-        // handle errors silently
+        // silently ignore errors
       }
     });
   }
@@ -63,7 +64,7 @@ class _OccupancyPageState extends State<OccupancyPage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: const Text(
           '🏫 Lab Occupancy',
@@ -73,14 +74,14 @@ class _OccupancyPageState extends State<OccupancyPage>
             fontSize: 22,
           ),
         ),
-        backgroundColor: const Color(0xFF00ADB5),
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 8,
-        shadowColor: const Color(0xFF00ADB5).withOpacity(0.5),
+        shadowColor: const Color(0xFF00FFD5).withOpacity(0.5),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: TabBar(
             controller: _tabController,
-            indicatorColor: Colors.white,
+            indicatorColor: const Color(0xFF00FFD5),
             indicatorWeight: 4,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withOpacity(0.6),
@@ -99,21 +100,81 @@ class _OccupancyPageState extends State<OccupancyPage>
   }
 
   Widget _buildLabsView() {
-    return ListView(
+    final labs = [
+      {"name": "Python LAB", "count": labA1, "capacity": 30, "icon": Icons.computer},
+      {"name": "NETWORK LAB", "count": labA2, "capacity": 30, "icon": Icons.computer},
+      {"name": "LANGUAGE LAB", "count": labB1, "capacity": 25, "icon": Icons.computer},
+      {"name": "MOCK LAB", "count": labB2, "capacity": 25, "icon": Icons.computer},
+      {"name": "ILP LAB", "count": labC1, "capacity": 30, "icon": Icons.computer},
+    ];
+
+    return GridView.builder(
       padding: const EdgeInsets.all(16),
-      children: [
-        _buildOccupancyCard(
-          'Python LAB',
-          labA1,
-          30,
-          Icons.computer,
-          processing,
-        ),
-        _buildOccupancyCard('NETWORK LAB', labA2, 30, Icons.computer, false),
-        _buildOccupancyCard('LANGUAGE LAB', labB1, 25, Icons.computer, false),
-        _buildOccupancyCard('MOCK LAB', labB2, 25, Icons.computer, false),
-        _buildOccupancyCard('ILP LAB', labC1, 30, Icons.computer, false),
-      ],
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.2,
+      ),
+      itemCount: labs.length,
+      itemBuilder: (context, index) {
+        final lab = labs[index];
+        double percentage = (lab["capacity"] as int > 0)
+            ? ((lab["count"] as int) / (lab["capacity"] as int)) * 100
+            : 0.0;
+
+        Color iconColor;
+        if (percentage >= 90) {
+          iconColor = Colors.purpleAccent;
+        } else if (percentage >= 70) {
+          iconColor = Colors.tealAccent;
+        } else if (percentage > 0) {
+          iconColor = Colors.lightBlueAccent;
+        } else {
+          iconColor = Colors.grey;
+        }
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) =>
+                    LabDetailPage(labName: lab["name"] as String)));
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(lab["icon"] as IconData, color: iconColor, size: 28),
+                const SizedBox(height: 12),
+                Text(
+                  (lab["count"] as int).toString(),
+                  style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+                Text(
+                  lab["name"] as String,
+                  style: TextStyle(
+                      fontSize: 14, color: Colors.white.withOpacity(0.7)),
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: percentage / 100,
+                  backgroundColor: Colors.white12,
+                  valueColor: AlwaysStoppedAnimation(iconColor),
+                  minHeight: 6,
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -131,31 +192,25 @@ class _OccupancyPageState extends State<OccupancyPage>
   }
 
   Widget _buildOccupancyCard(
-    String name,
-    int occupied,
-    int capacity,
-    IconData icon,
-    bool processing,
-  ) {
-    final double percentage = (capacity > 0)
-        ? (occupied / capacity) * 100
-        : 0.0;
+      String name, int occupied, int capacity, IconData icon, bool processing) {
+    final double percentage = (capacity > 0) ? (occupied / capacity) * 100 : 0.0;
 
     Color statusColor;
     Color gradientStart;
     Color gradientEnd;
+
     if (percentage >= 90) {
-      statusColor = Colors.red;
-      gradientStart = Colors.red.withOpacity(0.8);
-      gradientEnd = Colors.redAccent.withOpacity(0.4);
+      statusColor = Colors.purpleAccent;
+      gradientStart = Colors.purpleAccent.withOpacity(0.8);
+      gradientEnd = Colors.purple.withOpacity(0.4);
     } else if (percentage >= 70) {
-      statusColor = Colors.orange;
-      gradientStart = Colors.orange.withOpacity(0.8);
-      gradientEnd = Colors.amber.withOpacity(0.4);
-    } else if (percentage > 0) {
-      statusColor = Colors.green;
-      gradientStart = Colors.green.withOpacity(0.8);
+      statusColor = Colors.tealAccent;
+      gradientStart = Colors.tealAccent.withOpacity(0.8);
       gradientEnd = Colors.teal.withOpacity(0.4);
+    } else if (percentage > 0) {
+      statusColor = Colors.lightBlueAccent;
+      gradientStart = Colors.lightBlueAccent.withOpacity(0.8);
+      gradientEnd = Colors.blueAccent.withOpacity(0.4);
     } else {
       statusColor = Colors.grey;
       gradientStart = Colors.grey.withOpacity(0.6);
@@ -199,8 +254,8 @@ class _OccupancyPageState extends State<OccupancyPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.white.withOpacity(0.95),
-                Colors.white.withOpacity(0.85),
+                Colors.black.withOpacity(0.9),
+                Colors.black.withOpacity(0.7),
               ],
             ),
           ),
@@ -231,7 +286,7 @@ class _OccupancyPageState extends State<OccupancyPage>
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF222831),
+                            color: Colors.white,
                           ),
                         ),
                         Text(
@@ -248,10 +303,8 @@ class _OccupancyPageState extends State<OccupancyPage>
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -277,13 +330,12 @@ class _OccupancyPageState extends State<OccupancyPage>
                 ],
               ),
               const SizedBox(height: 12),
-              // Progress bar
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
                   value: percentage / 100,
                   minHeight: 8,
-                  backgroundColor: Colors.grey.withOpacity(0.2),
+                  backgroundColor: Colors.white12,
                   valueColor: AlwaysStoppedAnimation<Color>(statusColor),
                 ),
               ),
