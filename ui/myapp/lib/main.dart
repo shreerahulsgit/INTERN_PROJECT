@@ -67,7 +67,7 @@ class CampusConnectApp extends StatelessWidget {
       initialRoute: '/home',
       routes: {
        
-        '/home': (context) => const TimetablePage(),
+        '/home': (context) => const MyApp(),
       },
     );
   }
