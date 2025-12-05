@@ -20,29 +20,54 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0B3A52),
-          primary: const Color(0xFF0B3A52),
+          seedColor: const Color(0xFF00ADB5),
+          primary: const Color(0xFF00ADB5),
+          brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: const Color(0xFF071425),
-        textTheme: Theme.of(context)
-            .textTheme
-            .apply(bodyColor: Colors.white70, displayColor: Colors.white),
+        scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+        textTheme: Theme.of(
+          context,
+        ).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFF092233),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          labelStyle: const TextStyle(color: Colors.white70),
+          fillColor: const Color(0xFF2A2A2A),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
+          labelStyle: const TextStyle(color: Colors.white60),
+          hintStyle: const TextStyle(color: Colors.white30),
+          prefixIconColor: const Color(0xFF00ADB5),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: const Color(0xFF00ADB5).withOpacity(0.3),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: const Color(0xFF00ADB5).withOpacity(0.3),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF00ADB5), width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.red.shade400),
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            backgroundColor: const Color(0xFF1AA39A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: const Color(0xFF00ADB5),
             foregroundColor: Colors.white,
+            elevation: 0,
           ),
         ),
       ),
@@ -95,9 +120,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     final url = Uri.parse('$backendBase/api/$role/send_otp');
     try {
-      final res = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'email': email}));
+      final res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email}),
+      );
       if (res.statusCode == 200) {
         _showSnack('OTP sent to $email.');
         if (!mounted) return;
@@ -123,9 +150,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() => _loading = true);
     final url = Uri.parse('$backendBase/api/$role/verify_otp');
     try {
-      final res = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'email': email, 'otp': otp}));
+      final res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email, 'otp': otp}),
+      );
       if (res.statusCode == 200) {
         _showSnack('OTP verified.');
         if (!mounted) return;
@@ -147,15 +176,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final email = _emailController.text.trim();
     final name = _nameController.text.trim();
     final dept = _departmentController.text.trim();
-    final Map<String, dynamic> body = {'email': email, 'name': name, 'department': dept};
+    final Map<String, dynamic> body = {
+      'email': email,
+      'name': name,
+      'department': dept,
+    };
     if (role == 'student') body['year'] = _yearController.text.trim();
 
     setState(() => _loading = true);
     final url = Uri.parse('$backendBase/api/$role/register');
     try {
-      final res = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(body));
+      final res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
       if (res.statusCode == 200) {
         _showSnack('Registration Successful.');
         if (!mounted) return;
@@ -174,11 +209,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<void> _loginUser(String email) async {
     setState(() => _loading = true);
-    final url = Uri.parse('$backendBase/api/$role/login');
+    final url = Uri.parse('$backendBase/api/login');
     try {
-      final res = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'email': email}));
+      final res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email}),
+      );
       if (res.statusCode == 200) {
         _showSnack('Login Successful.');
         if (!mounted) return;
@@ -199,80 +236,185 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _showLoginDialog(String email) {
-  showDialog(
-    context: context, // page context
-    builder: (dialogContext) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF0B2430),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Login', style: TextStyle(color: Colors.white)),
-        content: const Text('Do you want to login now?', style: TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext), // just close dialog
-            child: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext); // close dialog first
-              // Navigate in next frame
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                Navigator.pushReplacement(
-                  context, // use page context, not dialogContext
-                  MaterialPageRoute(builder: (_) => const HomePage()),
-                );
-              });
-            },
-            child: const Text('Login', style: TextStyle(color: Colors.greenAccent)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00ADB5).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFF00ADB5),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Registration Complete',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
+          content: const Text(
+            'Your account has been created successfully. Would you like to login now?',
+            style: TextStyle(color: Colors.white60, fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'Later',
+                style: TextStyle(color: Colors.white54),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                // Use post-frame callback to ensure dialog is fully closed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _loginUser(email);
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00ADB5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text('Login Now'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showLoginEmailDialog() {
     final _loginEmailController = TextEditingController();
 
     showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFF0B2430),
-            title: const Text('Login', style: TextStyle(color: Colors.white)),
-            content: TextField(
-              controller: _loginEmailController,
-              decoration: const InputDecoration(
-                labelText: 'College Email',
-                labelStyle: TextStyle(color: Colors.white70),
-                prefixIcon: Icon(Icons.email, color: Colors.white70),
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00ADB5).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.login,
+                  color: Color(0xFF00ADB5),
+                  size: 24,
+                ),
               ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.redAccent))),
-              TextButton(
-                onPressed: () {
-                  final email = _loginEmailController.text.trim();
-                  if (email.isEmpty) {
-                    _showSnack('Enter your email');
-                    return;
-                  }
-                  Navigator.pop(context);
-                  _loginUser(email);
-                },
-                child: const Text('Login',
-                    style: TextStyle(color: Colors.greenAccent)),
+              const SizedBox(width: 12),
+              const Text(
+                'Login to Account',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ],
-          );
-        });
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Enter your registered email address',
+                style: TextStyle(color: Colors.white60, fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _loginEmailController,
+                decoration: InputDecoration(
+                  hintText: 'name@citchennai.net',
+                  labelText: 'College Email',
+                  labelStyle: const TextStyle(color: Colors.white60),
+                  prefixIcon: const Icon(Icons.email, color: Color(0xFF00ADB5)),
+                  filled: true,
+                  fillColor: const Color(0xFF2A2A2A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: const Color(0xFF00ADB5).withOpacity(0.3),
+                    ),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.emailAddress,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = _loginEmailController.text.trim();
+                if (email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter your email')),
+                  );
+                  return;
+                }
+                Navigator.pop(context);
+                // Use post-frame callback to ensure dialog is fully closed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    _loginUser(email);
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00ADB5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text('Login'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _resetAll() {
@@ -287,116 +429,114 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  void _resetStaff() {
-    if (role == 'staff') _resetAll();
-  }
-
-  void _resetStudent() {
-    if (role == 'student') _resetAll();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFF1AA39A);
-    final bg = const Color(0xFF071425);
-    final cardColor = const Color(0xFF0B2430);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: bg,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-            20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Card(
-              color: cardColor,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: CircleAvatar(
-                          radius: 40,
-                          backgroundColor: Colors.white10,
-                          child: const Icon(Icons.school,
-                              color: Colors.white, size: 40)),
-                    ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: Column(
-                        children: [
-                          Text(
-                              role == 'staff'
-                                  ? 'STAFF REGISTER'
-                                  : 'STUDENT REGISTER',
-                              style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: accent)),
-                          const SizedBox(height: 4),
-                          Text('Campus Connect',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildRoleToggle(),
-                    const SizedBox(height: 18),
-                    _buildStepContent(),
-                    const SizedBox(height: 14),
-                    Row(
+      backgroundColor: const Color(0xFF0F0F0F),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            20,
+            24,
+            MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: screenHeight * 0.05),
+                  // Logo and Title
+                  Center(
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _loading
-                                ? null
-                                : () async {
-                                    if (_currentStep == 0) await _sendOtp();
-                                    else if (_currentStep == 1) await _verifyOtp();
-                                    else await _completeRegistration();
-                                  },
-                            child: _loading
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : Text(_currentStep == 0
-                                    ? 'Send OTP'
-                                    : _currentStep == 1
-                                        ? 'Confirm OTP'
-                                        : 'Register'),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                const Color(0xFF00ADB5).withOpacity(0.2),
+                                const Color(0xFF00ADB5).withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00ADB5).withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.school,
+                            color: Color(0xFF00ADB5),
+                            size: 48,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _loading ? null : _showLoginEmailDialog,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00D9FF),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: const Text('Already have an account? Login'),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Campus Connect',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Welcome back! Please login to continue',
+                          style: TextStyle(color: Colors.white60, fontSize: 14),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: _loading
-                          ? null
-                          : role == 'staff'
-                              ? _resetStaff
-                              : _resetStudent,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Reset'),
+                  ),
+                  const SizedBox(height: 48),
+
+                  // Role Toggle
+                  _buildRoleToggle(),
+                  const SizedBox(height: 32),
+
+                  // Progress Indicator
+                  _buildProgressIndicator(),
+                  const SizedBox(height: 32),
+
+                  // Main Card
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1A1A),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildStepContent(),
+                          const SizedBox(height: 24),
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildBottomActions(),
+                ],
               ),
             ),
           ),
@@ -405,33 +545,228 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  Widget _buildProgressIndicator() {
+    return Row(
+      children: [
+        _buildProgressDot(0, 'Email'),
+        _buildProgressLine(0),
+        _buildProgressDot(1, 'Verify'),
+        _buildProgressLine(1),
+        _buildProgressDot(2, 'Complete'),
+      ],
+    );
+  }
+
+  Widget _buildProgressDot(int step, String label) {
+    final isActive = _currentStep >= step;
+    final isCurrent = _currentStep == step;
+
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? const Color(0xFF00ADB5)
+                  : const Color(0xFF2A2A2A),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isCurrent ? const Color(0xFF00ADB5) : Colors.transparent,
+                width: 2,
+              ),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF00ADB5).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: isActive
+                  ? const Icon(Icons.check, color: Colors.white, size: 20)
+                  : Text(
+                      '${step + 1}',
+                      style: const TextStyle(
+                        color: Colors.white30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: isActive ? Colors.white : Colors.white30,
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressLine(int step) {
+    final isActive = _currentStep > step;
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: const EdgeInsets.only(bottom: 28),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isActive
+                ? [const Color(0xFF00ADB5), const Color(0xFF00ADB5)]
+                : [const Color(0xFF2A2A2A), const Color(0xFF2A2A2A)],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _loading
+                ? null
+                : () async {
+                    if (_currentStep == 0)
+                      await _sendOtp();
+                    else if (_currentStep == 1)
+                      await _verifyOtp();
+                    else
+                      await _completeRegistration();
+                  },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: const Color(0xFF00ADB5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: _loading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    _currentStep == 0
+                        ? 'Send Verification Code'
+                        : _currentStep == 1
+                        ? 'Verify Code'
+                        : 'Complete Registration',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
+        ),
+        if (_currentStep > 0) ...[
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: _loading ? null : _resetAll,
+            child: const Text(
+              'Start Over',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBottomActions() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Already have an account?',
+              style: TextStyle(color: Colors.white60),
+            ),
+            TextButton(
+              onPressed: _loading ? null : _showLoginEmailDialog,
+              child: const Text(
+                'Login',
+                style: TextStyle(
+                  color: Color(0xFF00ADB5),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildRoleToggle() {
-    final accent = const Color(0xFF00D9FF);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withOpacity(0.1),
+        color: const Color(0xFF2A2A2A),
+        border: Border.all(color: const Color(0xFF00ADB5).withOpacity(0.3)),
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: _currentStep == 0 ? () => setState(() => role = 'staff') : null,
-              child: Container(
+              onTap: _currentStep == 0
+                  ? () => setState(() => role = 'staff')
+                  : null,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: role == 'staff' ? accent : Colors.transparent,
+                  gradient: role == 'staff'
+                      ? const LinearGradient(
+                          colors: [Color(0xFF00ADB5), Color(0xFF00ADB5)],
+                        )
+                      : null,
+                  boxShadow: role == 'staff'
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF00ADB5).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
                 ),
-                child: Center(
-                  child: Text(
-                    'Staff',
-                    style: TextStyle(
-                      color: role == 'staff' ? const Color(0xFF071425) : Colors.white38,
-                      fontWeight: FontWeight.w700,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.business_center,
+                      color: role == 'staff' ? Colors.white : Colors.white30,
+                      size: 18,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Staff',
+                      style: TextStyle(
+                        color: role == 'staff' ? Colors.white : Colors.white30,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -439,21 +774,49 @@ class _RegistrationPageState extends State<RegistrationPage> {
           const SizedBox(width: 4),
           Expanded(
             child: GestureDetector(
-              onTap: _currentStep == 0 ? () => setState(() => role = 'student') : null,
-              child: Container(
+              onTap: _currentStep == 0
+                  ? () => setState(() => role = 'student')
+                  : null,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: role == 'student' ? accent : Colors.transparent,
+                  gradient: role == 'student'
+                      ? const LinearGradient(
+                          colors: [Color(0xFF00ADB5), Color(0xFF00ADB5)],
+                        )
+                      : null,
+                  boxShadow: role == 'student'
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF00ADB5).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
                 ),
-                child: Center(
-                  child: Text(
-                    'Student',
-                    style: TextStyle(
-                      color: role == 'student' ? const Color(0xFF071425) : Colors.white38,
-                      fontWeight: FontWeight.w700,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.school,
+                      color: role == 'student' ? Colors.white : Colors.white30,
+                      size: 18,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Student',
+                      style: TextStyle(
+                        color: role == 'student'
+                            ? Colors.white
+                            : Colors.white30,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -467,66 +830,162 @@ class _RegistrationPageState extends State<RegistrationPage> {
     if (_currentStep == 0) {
       return Form(
         key: _emailKey,
-        child: TextFormField(
-          controller: _emailController,
-          decoration:
-              const InputDecoration(labelText: 'College Email', prefixIcon: Icon(Icons.email)),
-          keyboardType: TextInputType.emailAddress,
-          validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Enter email';
-            if (!v.trim().endsWith('@citchennai.net'))
-              return 'Use your college email (@citchennai.net)';
-            final localPart = v.trim().split('@')[0];
-            if (role == 'staff' && localPart.contains('.'))
-              return 'Staff email must be name@citchennai.net';
-            if (role == 'student') {
-              if (!RegExp(r'^[a-zA-Z]+[.][a-zA-Z]+[0-9]{4}$').hasMatch(localPart)) {
-                return 'Student email format: name.departmentYear (e.g., vithunas.csbs2023)';
-              }
-            }
-            return null;
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter Your Email',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'We\'ll send a verification code to your college email',
+              style: TextStyle(fontSize: 14, color: Colors.white60),
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                hintText: role == 'staff'
+                    ? 'name@citchennai.net'
+                    : 'firstname.dept2023@citchennai.net',
+                labelText: 'College Email',
+                prefixIcon: const Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Colors.white),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty)
+                  return 'Please enter your email';
+                if (!v.trim().endsWith('@citchennai.net'))
+                  return 'Please use your college email (@citchennai.net)';
+                final localPart = v.trim().split('@')[0];
+                if (role == 'staff' && localPart.contains('.'))
+                  return 'Staff email format: name@citchennai.net';
+                if (role == 'student') {
+                  if (!RegExp(
+                    r'^[a-zA-Z]+[.][a-zA-Z]+[0-9]{4}$',
+                  ).hasMatch(localPart)) {
+                    return 'Student email format: firstname.dept2023@citchennai.net';
+                  }
+                }
+                return null;
+              },
+            ),
+          ],
         ),
       );
     }
     if (_currentStep == 1) {
       return Form(
         key: _otpKey,
-        child: TextFormField(
-          controller: _otpController,
-          decoration:
-              const InputDecoration(labelText: 'OTP', prefixIcon: Icon(Icons.confirmation_number)),
-          keyboardType: TextInputType.number,
-          validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Enter OTP';
-            if (int.tryParse(v.trim()) == null) return 'Invalid OTP';
-            return null;
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Verify Your Email',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Enter the 6-digit code sent to ${_emailController.text}',
+              style: const TextStyle(fontSize: 14, color: Colors.white60),
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _otpController,
+              decoration: const InputDecoration(
+                hintText: 'Enter 6-digit code',
+                labelText: 'Verification Code',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
+              keyboardType: TextInputType.number,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                letterSpacing: 8,
+              ),
+              textAlign: TextAlign.center,
+              maxLength: 6,
+              validator: (v) {
+                if (v == null || v.trim().isEmpty)
+                  return 'Please enter the verification code';
+                if (int.tryParse(v.trim()) == null)
+                  return 'Please enter a valid code';
+                return null;
+              },
+            ),
+          ],
         ),
       );
     }
     return Form(
       key: _regKey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            'Complete Your Profile',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Fill in your details to complete registration',
+            style: TextStyle(fontSize: 14, color: Colors.white60),
+          ),
+          const SizedBox(height: 20),
           TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person)),
-              validator: (v) => v == null || v.trim().isEmpty ? 'Enter name' : null),
+            controller: _nameController,
+            decoration: const InputDecoration(
+              hintText: 'Enter your full name',
+              labelText: 'Full Name',
+              prefixIcon: Icon(Icons.person),
+            ),
+            style: const TextStyle(color: Colors.white),
+            validator: (v) =>
+                v == null || v.trim().isEmpty ? 'Please enter your name' : null,
+          ),
           if (role == 'student') ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
-                controller: _departmentController,
-                decoration:
-                    const InputDecoration(labelText: 'Department', prefixIcon: Icon(Icons.apartment)),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Enter department' : null),
-            const SizedBox(height: 12),
+              controller: _departmentController,
+              decoration: const InputDecoration(
+                hintText: 'e.g., Computer Science',
+                labelText: 'Department',
+                prefixIcon: Icon(Icons.business),
+              ),
+              style: const TextStyle(color: Colors.white),
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Please enter your department'
+                  : null,
+            ),
+            const SizedBox(height: 16),
             TextFormField(
-                controller: _yearController,
-                decoration:
-                    const InputDecoration(labelText: 'Batch/Year', prefixIcon: Icon(Icons.calendar_month)),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Enter batch/year' : null),
-          ]
+              controller: _yearController,
+              decoration: const InputDecoration(
+                hintText: 'e.g., 2023',
+                labelText: 'Batch Year',
+                prefixIcon: Icon(Icons.calendar_today),
+              ),
+              style: const TextStyle(color: Colors.white),
+              keyboardType: TextInputType.number,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Please enter your batch year'
+                  : null,
+            ),
+          ],
         ],
       ),
     );

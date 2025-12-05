@@ -3,6 +3,7 @@ import 'profile_page.dart';
 import 'features/exam_seating/pages/management_page.dart';
 import 'timetable_page.dart';
 import 'occupancy_page.dart';
+import 'attendance_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,7 +12,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -32,7 +34,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     super.build(context);
 
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+      backgroundColor: isDarkMode
+          ? const Color(0xFF121212)
+          : const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 1,
@@ -45,7 +49,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_outlined, color: isDarkMode ? Colors.white : Colors.black87),
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -54,7 +61,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             },
           ),
           IconButton(
-            icon: Icon(Icons.person_outline, color: isDarkMode ? Colors.white : Colors.black87),
+            icon: Icon(
+              Icons.person_outline,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -107,12 +117,19 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         children: [
           const Text(
             "Welcome Back 👋",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             "You have 3 classes today",
-            style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.92)),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white.withOpacity(0.92),
+            ),
           ),
         ],
       ),
@@ -156,10 +173,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 6,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6),
         ],
       ),
       child: Column(
@@ -195,38 +209,50 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         "label": "Attendance",
         "icon": Icons.fact_check_outlined,
         "action": () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Attendance Coming Soon")),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AttendancePage()),
           );
-        }
+        },
       },
       {
         "label": "Timetable",
         "icon": Icons.calendar_today_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimetablePage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TimetablePage()),
+          );
+        },
       },
       {
         "label": "Room Occupancy",
         "icon": Icons.meeting_room_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const OccupancyPage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OccupancyPage()),
+          );
+        },
       },
       {
         "label": "Exam Seating",
         "icon": Icons.event_seat_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExamSeatingManagementPage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ExamSeatingManagementPage(),
+            ),
+          );
+        },
       },
       {
         "label": "Management",
         "icon": Icons.admin_panel_settings_outlined,
         "action": () {
           Navigator.pushNamed(context, "/managementLogin");
-        }
+        },
       },
       {
         "label": "More",
@@ -235,7 +261,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("More Features Coming Soon")),
           );
-        }
+        },
       },
     ];
 
@@ -244,7 +270,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       children: [
         const Text(
           "Features",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF00ADB5)),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF00ADB5),
+          ),
         ),
         const SizedBox(height: 12),
         GridView.builder(
@@ -303,17 +333,37 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       children: [
         const Text(
           "Recent Activity",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF00ADB5)),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF00ADB5),
+          ),
         ),
         const SizedBox(height: 12),
-        _activityCard(icon: Icons.check_circle_outline, title: "Attendance marked for CS101", time: "2 hours ago"),
-        _activityCard(icon: Icons.update, title: "Lab B2 occupancy updated", time: "5 hours ago"),
-        _activityCard(icon: Icons.edit_calendar_outlined, title: "Timetable modified", time: "Yesterday"),
+        _activityCard(
+          icon: Icons.check_circle_outline,
+          title: "Attendance marked for CS101",
+          time: "2 hours ago",
+        ),
+        _activityCard(
+          icon: Icons.update,
+          title: "Lab B2 occupancy updated",
+          time: "5 hours ago",
+        ),
+        _activityCard(
+          icon: Icons.edit_calendar_outlined,
+          title: "Timetable modified",
+          time: "Yesterday",
+        ),
       ],
     );
   }
 
-  Widget _activityCard({required IconData icon, required String title, required String time}) {
+  Widget _activityCard({
+    required IconData icon,
+    required String title,
+    required String time,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -321,10 +371,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 6,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6),
         ],
       ),
       child: Row(
@@ -342,16 +389,22 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: isDarkMode ? Colors.white : Colors.black87)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(time,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: isDarkMode ? Colors.white54 : Colors.black54)),
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.white54 : Colors.black54,
+                  ),
+                ),
               ],
             ),
           ),
@@ -367,36 +420,50 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         "label": "Attendance",
         "icon": Icons.fact_check_outlined,
         "action": () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Attendance Coming Soon")));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AttendancePage()),
+          );
+        },
       },
       {
         "label": "Timetable",
         "icon": Icons.calendar_today_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimetablePage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TimetablePage()),
+          );
+        },
       },
       {
         "label": "Exam Seating",
         "icon": Icons.event_seat_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExamSeatingManagementPage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ExamSeatingManagementPage(),
+            ),
+          );
+        },
       },
       {
         "label": "Room Occupancy",
         "icon": Icons.meeting_room_outlined,
         "action": () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const OccupancyPage()));
-        }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OccupancyPage()),
+          );
+        },
       },
       {
         "label": "Management",
         "icon": Icons.admin_panel_settings_outlined,
         "action": () {
           Navigator.pushNamed(context, "/managementLogin");
-        }
+        },
       },
     ];
 
@@ -404,7 +471,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       height: 75,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.9),
+        color: isDarkMode
+            ? Colors.black.withOpacity(0.4)
+            : Colors.white.withOpacity(0.9),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
@@ -438,7 +507,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     ),
                   ],
                 ),
-                child: Icon(footerFeatures[2]["icon"], size: 32, color: isDarkMode ? Colors.white : Colors.black),
+                child: Icon(
+                  footerFeatures[2]["icon"],
+                  size: 32,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
             ),
           ),

@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic[email]
+python-multipart
+pyjwt
+opencv-python
+ultralytics
+deep-sort-realtime
+numpy
+torch
+torchvision

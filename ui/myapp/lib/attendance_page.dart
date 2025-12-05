@@ -32,102 +32,199 @@ class _AttendancePageState extends ConsumerState<AttendancePage>
     super.build(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEEEEE),
-      appBar: AppBar(
-        title: const Text(
-          'Attendance',
-          style: TextStyle(
-            color: Color(0xFF222831),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            color: const Color(0xFF393E46),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-            tooltip: 'Profile',
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFF0F0F0F),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            children: [
-              _buildActionCard(
-                context,
-                title: 'Take Attendance',
-                icon: Icons.how_to_reg,
-                color: const Color(0xFF00ADB5),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const ClassSelectorPage(),
+        child: CustomScrollView(
+          slivers: [
+            // Modern Header
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white54,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          tooltip: 'Back',
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                const Color(0xFF00ADB5).withOpacity(0.2),
+                                const Color(0xFF00ADB5).withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF00ADB5).withOpacity(0.3),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.fact_check,
+                            color: Color(0xFF00ADB5),
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Attendance',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Manage student attendance',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.person_outline),
+                          color: Colors.white54,
+                          iconSize: 24,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const ProfilePage(),
+                              ),
+                            );
+                          },
+                          tooltip: 'Profile',
+                        ),
+                      ],
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-              _buildActionCard(
-                context,
-                title: 'View Summary',
-                icon: Icons.analytics,
-                color: const Color(0xFF393E46),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AttendanceSummaryPage(),
+            ),
+
+            // Action Cards
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.95,
+                ),
+                delegate: SliverChildListDelegate([
+                  _buildModernActionCard(
+                    context,
+                    title: 'Take Attendance',
+                    subtitle: 'Mark present/absent',
+                    icon: Icons.how_to_reg,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00ADB5), Color(0xFF007B82)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  );
-                },
-              ),
-              _buildActionCard(
-                context,
-                title: 'Student List',
-                icon: Icons.people,
-                color: const Color(0xFF00ADB5),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const StudentListPage(),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ClassSelectorPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildModernActionCard(
+                    context,
+                    title: 'View Summary',
+                    subtitle: 'Analytics & stats',
+                    icon: Icons.analytics,
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF00ADB5).withOpacity(0.7),
+                        const Color(0xFF007B82).withOpacity(0.7),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  );
-                },
-              ),
-              _buildActionCard(
-                context,
-                title: 'Student Report',
-                icon: Icons.assessment,
-                color: const Color(0xFF393E46),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const StudentReportPage(),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AttendanceSummaryPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildModernActionCard(
+                    context,
+                    title: 'Student List',
+                    subtitle: 'View all students',
+                    icon: Icons.people,
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF00ADB5).withOpacity(0.7),
+                        const Color(0xFF007B82).withOpacity(0.7),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  );
-                },
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const StudentListPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildModernActionCard(
+                    context,
+                    title: 'Student Report',
+                    subtitle: 'Individual reports',
+                    icon: Icons.assessment,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00ADB5), Color(0xFF007B82)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const StudentReportPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ]),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildActionCard(
+  Widget _buildModernActionCard(
     BuildContext context, {
     required String title,
+    required String subtitle,
     required IconData icon,
-    required Color color,
+    required Gradient gradient,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -135,35 +232,62 @@ class _AttendancePageState extends ConsumerState<AttendancePage>
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF00ADB5).withOpacity(0.2),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 16,
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Icon section with gradient
             Container(
-              padding: const EdgeInsets.all(20),
+              height: 100,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
+                gradient: gradient,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
               ),
-              child: Icon(icon, size: 48, color: color),
+              child: Center(child: Icon(icon, size: 48, color: Colors.white)),
             ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF222831),
+
+            // Text section
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

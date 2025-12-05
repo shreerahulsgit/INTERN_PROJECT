@@ -6,6 +6,7 @@ import 'home_page.dart';
 import 'login_page.dart';
 import 'timetable_page.dart';
 import 'prof_shell.dart';
+import 'home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,7 +68,7 @@ class CampusConnectApp extends StatelessWidget {
       initialRoute: '/home',
       routes: {
        
-        '/home': (context) => const TimetablePage(),
+        '/home': (context) => const MyApp(),
       },
     );
   }

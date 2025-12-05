@@ -11,6 +11,7 @@ import threading
 from threading import Lock
 from pathlib import Path
 import cv2
+import jwt
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 

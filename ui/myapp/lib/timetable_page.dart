@@ -40,59 +40,6 @@ void initState() {
   _tabController = TabController(length: 4, vsync: this);
 // ---------------- Sample Departments ----------------
 
-// 1. Computer Science
-final d1 = DepartmentModel(name: 'Computer Science', groups: ['CS-A']);
-d1.sessions.addAll([
-  SessionInput(subject: 'Math', teacher: 'Alice', group: 'CS-A'),
-  SessionInput(subject: 'Programming', teacher: 'Eve', group: 'CS-A'),
-  SessionInput(subject: 'AI', teacher: 'Frank', group: 'CS-A'),
-  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'CS-A'),
-  SessionInput(subject: 'Chemistry', teacher: 'Alice', group: 'CS-A'),
-  SessionInput(subject: 'Data Structures', teacher: 'Grace', group: 'CS-A'),
-]);
-
-// 2. Mechanical
-final d2 = DepartmentModel(name: 'Mechanical', groups: ['ME-A']);
-d2.sessions.addAll([
-  SessionInput(subject: 'Thermo', teacher: 'Charlie', group: 'ME-A'),
-  SessionInput(subject: 'MechLab', teacher: 'Dave', group: 'ME-A'),
-  SessionInput(subject: 'CAD', teacher: 'Frank', group: 'ME-A'),
-  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'ME-A'), 
-  SessionInput(subject: 'Math', teacher: 'Alice', group: 'ME-A'), 
-  SessionInput(subject: 'Fluid Mechanics', teacher: 'Eve', group: 'ME-A'),
-]);
-
-// 3. Electrical
-final d3 = DepartmentModel(name: 'Electrical', groups: ['EE-A']);
-d3.sessions.addAll([
-  SessionInput(subject: 'Circuits', teacher: 'Frank', group: 'EE-A'),
-  SessionInput(subject: 'Electronics', teacher: 'Grace', group: 'EE-A'),
-  SessionInput(subject: 'Math', teacher: 'Alice', group: 'EE-A'),
-  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'EE-A'),
-  SessionInput(subject: 'Signals', teacher: 'Charlie', group: 'EE-A'),
-]);
-
-// 4. Civil
-final d4 = DepartmentModel(name: 'Civil', groups: ['CE-A']);
-d4.sessions.addAll([
-  SessionInput(subject: 'Structural', teacher: 'Alice', group: 'CE-A'),
-  SessionInput(subject: 'Surveying', teacher: 'Bob', group: 'CE-A'),
-  SessionInput(subject: 'Hydraulics', teacher: 'Charlie', group: 'CE-A'),
-  SessionInput(subject: 'Construction', teacher: 'Eve', group: 'CE-A'),
-]);
-
-// 5. Electronics & Telecom
-final d5 = DepartmentModel(name: 'ETC', groups: ['ETC-A']);
-d5.sessions.addAll([
-  SessionInput(subject: 'Communication', teacher: 'Frank', group: 'ETC-A'),
-  SessionInput(subject: 'Networking', teacher: 'Grace', group: 'ETC-A'),
-  SessionInput(subject: 'Math', teacher: 'Alice', group: 'ETC-A'),
-  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'ETC-A'),
-]);
-
-// Combine all
-departments.addAll([d1, d2, d3, d4, d5]);
-
 
 }
 
