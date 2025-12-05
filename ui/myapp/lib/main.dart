@@ -26,44 +26,48 @@ class CampusConnectApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'CampusConnect',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: const Color(0xFF00ADB5),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E1E1E),
-          elevation: 1,
-          titleTextStyle: TextStyle(
-            color: Color(0xFF00ADB5),
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-          iconTheme: IconThemeData(color: Colors.white),
-        ),
-        colorScheme: ColorScheme.dark(
-          primary: const Color(0xFF00ADB5),
-          secondary: const Color(0xFF00ADB5),
-        ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.white),
-          bodyLarge: TextStyle(color: Colors.white),
-          bodySmall: TextStyle(color: Colors.white70),
-          titleMedium: TextStyle(color: Colors.white),
-        ),
-        cardColor: const Color(0xFF1E1E1E),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFF00ADB5),
-          foregroundColor: Colors.white,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1E1E1E),
-          selectedItemColor: Color(0xFF00ADB5),
-          unselectedItemColor: Colors.white54,
-        ),
+  scaffoldBackgroundColor: const Color(0xFF121212),
+  cardColor: const Color(0xFF1E1E1E),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Color(0xFF1F1F1F),
+    foregroundColor: Colors.white,
+  ),
+  
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStatePropertyAll(Color(0xFF2D2D2D)),
+      foregroundColor: WidgetStatePropertyAll(Colors.white),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
       ),
+    ),
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    filled: true,
+    fillColor: Color(0xFF1E1E1E),
+    border: OutlineInputBorder(),
+    hintStyle: TextStyle(color: Colors.grey),
+  ),
+  expansionTileTheme: const ExpansionTileThemeData(
+    collapsedBackgroundColor: Color(0xFF1E1E1E),
+    backgroundColor: Color(0xFF1E1E1E),
+    iconColor: Colors.white,
+    collapsedIconColor: Colors.white,
+    textColor: Colors.white,
+    collapsedTextColor: Colors.white,
+  ),
+  listTileTheme: const ListTileThemeData(
+    tileColor: Color(0xFF1E1E1E),
+    textColor: Colors.white,
+    iconColor: Colors.white,
+  ),
+),
+
       // Start at login page
       initialRoute: '/home',
       routes: {
        
-        '/home': (context) => const HomePage(),
+        '/home': (context) => const TimetablePage(),
       },
     );
   }
