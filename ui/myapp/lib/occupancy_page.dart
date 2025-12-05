@@ -64,31 +64,49 @@ class _OccupancyPageState extends State<OccupancyPage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
-          '🏫 Lab Occupancy',
+          'Lab Occupancy',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 22,
+            fontSize: 20,
           ),
         ),
         backgroundColor: const Color(0xFF1A1A1A),
-        elevation: 8,
-        shadowColor: const Color(0xFF00FFD5).withOpacity(0.5),
+        elevation: 0,
+        shadowColor: Colors.black.withOpacity(0.3),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
-          child: TabBar(
-            controller: _tabController,
-            indicatorColor: const Color(0xFF00FFD5),
-            indicatorWeight: 4,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white.withOpacity(0.6),
-            tabs: const [
-              Tab(text: '💻 Labs'),
-              Tab(text: '🏢 Classrooms'),
-            ],
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: const Color(0xFF00ADB5),
+              indicatorWeight: 3,
+              labelColor: const Color(0xFF00ADB5),
+              unselectedLabelColor: Colors.white54,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+              tabs: const [
+                Tab(text: 'Labs'),
+                Tab(text: 'Classrooms'),
+              ],
+            ),
           ),
         ),
       ),
@@ -101,20 +119,35 @@ class _OccupancyPageState extends State<OccupancyPage>
 
   Widget _buildLabsView() {
     final labs = [
-      {"name": "Python LAB", "count": labA1, "capacity": 30, "icon": Icons.computer},
-      {"name": "NETWORK LAB", "count": labA2, "capacity": 30, "icon": Icons.computer},
-      {"name": "LANGUAGE LAB", "count": labB1, "capacity": 25, "icon": Icons.computer},
-      {"name": "MOCK LAB", "count": labB2, "capacity": 25, "icon": Icons.computer},
-      {"name": "ILP LAB", "count": labC1, "capacity": 30, "icon": Icons.computer},
+      {
+        "name": "Python LAB",
+        "count": labA1,
+        "capacity": 30,
+        "icon": Icons.developer_board,
+      },
+      {
+        "name": "Network LAB",
+        "count": labA2,
+        "capacity": 30,
+        "icon": Icons.router,
+      },
+      {
+        "name": "Language LAB",
+        "count": labB1,
+        "capacity": 25,
+        "icon": Icons.translate,
+      },
+      {"name": "Mock LAB", "count": labB2, "capacity": 25, "icon": Icons.quiz},
+      {"name": "ILP LAB", "count": labC1, "capacity": 30, "icon": Icons.school},
     ];
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.1,
       ),
       itemCount: labs.length,
       itemBuilder: (context, index) {
@@ -125,51 +158,128 @@ class _OccupancyPageState extends State<OccupancyPage>
 
         Color iconColor;
         if (percentage >= 90) {
-          iconColor = Colors.purpleAccent;
+          iconColor = const Color(0xFFFF6B6B);
         } else if (percentage >= 70) {
-          iconColor = Colors.tealAccent;
+          iconColor = const Color(0xFFFFD93D);
         } else if (percentage > 0) {
-          iconColor = Colors.lightBlueAccent;
+          iconColor = const Color(0xFF00ADB5);
         } else {
-          iconColor = Colors.grey;
+          iconColor = Colors.white30;
         }
 
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) =>
-                    LabDetailPage(labName: lab["name"] as String)));
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    LabDetailPage(labName: lab["name"] as String),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+                      var tween = Tween(
+                        begin: begin,
+                        end: end,
+                      ).chain(CurveTween(curve: curve));
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+              ),
+            );
           },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
+              color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(lab["icon"] as IconData, color: iconColor, size: 28),
-                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        lab["icon"] as IconData,
+                        color: iconColor,
+                        size: 24,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: iconColor.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        '${percentage.toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          color: iconColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Text(
                   (lab["count"] as int).toString(),
                   style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 Text(
                   lab["name"] as String,
-                  style: TextStyle(
-                      fontSize: 14, color: Colors.white.withOpacity(0.7)),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: percentage / 100,
-                  backgroundColor: Colors.white12,
-                  valueColor: AlwaysStoppedAnimation(iconColor),
-                  minHeight: 6,
-                )
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOut,
+                    tween: Tween<double>(begin: 0, end: percentage / 100),
+                    builder: (context, value, _) => LinearProgressIndicator(
+                      value: value,
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      valueColor: AlwaysStoppedAnimation(iconColor),
+                      minHeight: 6,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -183,164 +293,162 @@ class _OccupancyPageState extends State<OccupancyPage>
       padding: const EdgeInsets.all(16),
       children: [
         _buildOccupancyCard('Room 101', 45, 50, Icons.meeting_room, false),
-        _buildOccupancyCard('Room 102', 50, 50, Icons.meeting_room, false),
-        _buildOccupancyCard('Room 201', 30, 60, Icons.meeting_room, false),
-        _buildOccupancyCard('Room 202', 0, 60, Icons.meeting_room, false),
-        _buildOccupancyCard('Room 301', 55, 80, Icons.meeting_room, false),
+        const SizedBox(height: 12),
+        _buildOccupancyCard('Room 102', 50, 50, Icons.class_, false),
+        const SizedBox(height: 12),
+        _buildOccupancyCard('Room 201', 30, 60, Icons.school, false),
+        const SizedBox(height: 12),
+        _buildOccupancyCard('Room 202', 0, 60, Icons.door_front_door, false),
+        const SizedBox(height: 12),
+        _buildOccupancyCard('Room 301', 55, 80, Icons.apartment, false),
       ],
     );
   }
 
   Widget _buildOccupancyCard(
-      String name, int occupied, int capacity, IconData icon, bool processing) {
-    final double percentage = (capacity > 0) ? (occupied / capacity) * 100 : 0.0;
+    String name,
+    int occupied,
+    int capacity,
+    IconData icon,
+    bool processing,
+  ) {
+    final double percentage = (capacity > 0)
+        ? (occupied / capacity) * 100
+        : 0.0;
 
     Color statusColor;
-    Color gradientStart;
-    Color gradientEnd;
 
     if (percentage >= 90) {
-      statusColor = Colors.purpleAccent;
-      gradientStart = Colors.purpleAccent.withOpacity(0.8);
-      gradientEnd = Colors.purple.withOpacity(0.4);
+      statusColor = const Color(0xFFFF6B6B);
     } else if (percentage >= 70) {
-      statusColor = Colors.tealAccent;
-      gradientStart = Colors.tealAccent.withOpacity(0.8);
-      gradientEnd = Colors.teal.withOpacity(0.4);
+      statusColor = const Color(0xFFFFD93D);
     } else if (percentage > 0) {
-      statusColor = Colors.lightBlueAccent;
-      gradientStart = Colors.lightBlueAccent.withOpacity(0.8);
-      gradientEnd = Colors.blueAccent.withOpacity(0.4);
+      statusColor = const Color(0xFF00ADB5);
     } else {
-      statusColor = Colors.grey;
-      gradientStart = Colors.grey.withOpacity(0.6);
-      gradientEnd = Colors.blueGrey.withOpacity(0.3);
+      statusColor = Colors.white30;
     }
 
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => LabDetailPage(labName: name)),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                LabDetailPage(labName: name),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(0.0, 0.1);
+                  const end = Offset.zero;
+                  const curve = Curves.easeOut;
+                  var tween = Tween(
+                    begin: begin,
+                    end: end,
+                  ).chain(CurveTween(curve: curve));
+                  var fadeAnimation = Tween<double>(
+                    begin: 0.0,
+                    end: 1.0,
+                  ).animate(CurvedAnimation(parent: animation, curve: curve));
+                  return SlideTransition(
+                    position: animation.drive(tween),
+                    child: FadeTransition(opacity: fadeAnimation, child: child),
+                  );
+                },
+          ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [gradientStart, gradientEnd],
-          ),
+          color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: statusColor.withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-              spreadRadius: 1,
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.9),
-                Colors.black.withOpacity(0.7),
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: statusColor, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        processing
+                            ? "Processing..."
+                            : "$occupied / $capacity occupied",
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.white60,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: statusColor.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    '${percentage.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          statusColor.withOpacity(0.3),
-                          statusColor.withOpacity(0.1),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(icon, color: statusColor, size: 28),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          processing
-                              ? "🔄 Processing..."
-                              : "$occupied / $capacity occupied",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          statusColor.withOpacity(0.15),
-                          statusColor.withOpacity(0.05),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: statusColor.withOpacity(0.5),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Text(
-                      '${percentage.toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: percentage / 100,
+            const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeOut,
+                tween: Tween<double>(begin: 0, end: percentage / 100),
+                builder: (context, value, _) => LinearProgressIndicator(
+                  value: value,
                   minHeight: 8,
-                  backgroundColor: Colors.white12,
+                  backgroundColor: const Color(0xFF2A2A2A),
                   valueColor: AlwaysStoppedAnimation<Color>(statusColor),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

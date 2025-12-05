@@ -21,15 +21,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
           'Notifications',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -39,7 +39,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
             child: Text(
               'Manage your notification preferences',
-              style: TextStyle(fontSize: 14, color: Color(0xFF555555)),
+              style: TextStyle(fontSize: 14, color: Colors.white70),
             ),
           ),
 
@@ -129,22 +129,22 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F7F7),
+              color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFEEEEEE)),
+              border: Border.all(color: Colors.white10),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.info_outline,
-                  color: Color(0xFF555555),
+                  color: Color(0xFF00ADB5),
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
+                  child: const Text(
                     'Your notification preferences are saved automatically',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 13, color: Colors.white70),
                   ),
                 ),
               ],
@@ -163,7 +163,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
     );
@@ -178,13 +178,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -196,26 +196,29 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
+          style: const TextStyle(fontSize: 13, color: Colors.white60),
         ),
         secondary: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF2A2A2A),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
-            color: value ? Colors.black : Colors.grey,
+            color: value ? const Color(0xFF00ADB5) : Colors.white30,
             size: 24,
           ),
         ),
-        activeThumbColor: Colors.black,
+        activeColor: const Color(0xFF00ADB5),
+        activeTrackColor: const Color(0xFF00ADB5).withOpacity(0.5),
+        inactiveThumbColor: Colors.white30,
+        inactiveTrackColor: Colors.white10,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),

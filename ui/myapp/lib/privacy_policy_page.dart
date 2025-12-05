@@ -7,15 +7,15 @@ class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
           'Privacy Policy',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -26,7 +26,7 @@ class PrivacyPolicyPage extends StatelessWidget {
               'Effective Date: November 17, 2025',
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF555555),
+                color: Colors.white54,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -115,9 +115,9 @@ class PrivacyPolicyPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F7F7),
+                color: const Color(0xFF1A1A1A),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFEEEEEE)),
+                border: Border.all(color: Colors.white10),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,28 +126,28 @@ class PrivacyPolicyPage extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.shield_outlined,
-                        color: Colors.black,
+                        color: Color(0xFF00ADB5),
                         size: 28,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
+                        child: const Text(
                           'Your Privacy Matters',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  const Text(
                     'We are committed to protecting your personal information and respecting your privacy. If you have any concerns about how we handle your data, please don\'t hesitate to contact our Privacy Officer.',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey[700],
+                      color: Colors.white70,
                       height: 1.5,
                     ),
                   ),
@@ -171,7 +171,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -179,7 +179,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             content,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF555555),
+              color: Colors.white70,
               height: 1.6,
             ),
           ),

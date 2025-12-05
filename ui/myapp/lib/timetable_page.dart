@@ -1,13 +1,11 @@
 // lib/timetable_page.dart
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
-/// Timetable page — single-file CSP + GA hybrid (class scheduling).
-/// Drop into `lib/timetable_page.dart` and use / route to it.
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({super.key});
@@ -21,52 +19,83 @@ class _TimetablePageState extends State<TimetablePage>
   @override
   bool get wantKeepAlive => true;
 
-  // ---------- Config ----------
   final List<String> days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  int periodsPerDay = 6; // editable
-  List<String> get periods =>
-      [for (int i = 1; i <= periodsPerDay; i++) 'P$i'];
+  int periodsPerDay = 6;
+  List<String> get periods => [for (int i = 1; i <= periodsPerDay; i++) 'P$i'];
 
-  // ---------- Models (local) ----------
   final List<DepartmentModel> departments = [];
   final List<RoomModel> rooms = [];
-
   Map<String, Map<String, Map<String, TimetableCell>>>? timetableResult;
 
-  // GA state
   bool _isGenerating = false;
   String _status = '';
-
-  // UI controllers for adding department/room quickly
   final TextEditingController _deptCtl = TextEditingController();
   final TextEditingController _roomCtl = TextEditingController();
-
   late TabController _tabController;
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+ @override
+void initState() {
+  super.initState();
+  _tabController = TabController(length: 4, vsync: this);
+// ---------------- Sample Departments ----------------
 
-    // Sample starter data
-    final d1 = DepartmentModel(name: 'Computer Science');
-    d1.groups.addAll(['CS-A', 'CS-B']);
-    d1.sessions.addAll([
-      SessionInput(subject: 'Math', teacher: 'Alice', group: 'CS-A'),
-      SessionInput(subject: 'Prog', teacher: 'Bob', group: 'CS-B'),
-      SessionInput(subject: 'DS', teacher: 'Alice', group: 'CS-B'),
-    ]);
+// 1. Computer Science
+final d1 = DepartmentModel(name: 'Computer Science', groups: ['CS-A']);
+d1.sessions.addAll([
+  SessionInput(subject: 'Math', teacher: 'Alice', group: 'CS-A'),
+  SessionInput(subject: 'Programming', teacher: 'Eve', group: 'CS-A'),
+  SessionInput(subject: 'AI', teacher: 'Frank', group: 'CS-A'),
+  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'CS-A'),
+  SessionInput(subject: 'Chemistry', teacher: 'Alice', group: 'CS-A'),
+  SessionInput(subject: 'Data Structures', teacher: 'Grace', group: 'CS-A'),
+]);
 
-    final d2 = DepartmentModel(name: 'Mechanical');
-    d2.groups.addAll(['ME-A']);
-    d2.sessions.addAll([
-      SessionInput(subject: 'Thermo', teacher: 'Charlie', group: 'ME-A'),
-      SessionInput(subject: 'MechLab', teacher: 'Dave', group: 'ME-A'),
-    ]);
+// 2. Mechanical
+final d2 = DepartmentModel(name: 'Mechanical', groups: ['ME-A']);
+d2.sessions.addAll([
+  SessionInput(subject: 'Thermo', teacher: 'Charlie', group: 'ME-A'),
+  SessionInput(subject: 'MechLab', teacher: 'Dave', group: 'ME-A'),
+  SessionInput(subject: 'CAD', teacher: 'Frank', group: 'ME-A'),
+  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'ME-A'), 
+  SessionInput(subject: 'Math', teacher: 'Alice', group: 'ME-A'), 
+  SessionInput(subject: 'Fluid Mechanics', teacher: 'Eve', group: 'ME-A'),
+]);
 
-    departments.addAll([d1, d2]);
-    rooms.addAll([RoomModel(name: 'Room 101'), RoomModel(name: 'Lab A'), RoomModel(name: 'Room 102')]);
-  }
+// 3. Electrical
+final d3 = DepartmentModel(name: 'Electrical', groups: ['EE-A']);
+d3.sessions.addAll([
+  SessionInput(subject: 'Circuits', teacher: 'Frank', group: 'EE-A'),
+  SessionInput(subject: 'Electronics', teacher: 'Grace', group: 'EE-A'),
+  SessionInput(subject: 'Math', teacher: 'Alice', group: 'EE-A'),
+  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'EE-A'),
+  SessionInput(subject: 'Signals', teacher: 'Charlie', group: 'EE-A'),
+]);
+
+// 4. Civil
+final d4 = DepartmentModel(name: 'Civil', groups: ['CE-A']);
+d4.sessions.addAll([
+  SessionInput(subject: 'Structural', teacher: 'Alice', group: 'CE-A'),
+  SessionInput(subject: 'Surveying', teacher: 'Bob', group: 'CE-A'),
+  SessionInput(subject: 'Hydraulics', teacher: 'Charlie', group: 'CE-A'),
+  SessionInput(subject: 'Construction', teacher: 'Eve', group: 'CE-A'),
+]);
+
+// 5. Electronics & Telecom
+final d5 = DepartmentModel(name: 'ETC', groups: ['ETC-A']);
+d5.sessions.addAll([
+  SessionInput(subject: 'Communication', teacher: 'Frank', group: 'ETC-A'),
+  SessionInput(subject: 'Networking', teacher: 'Grace', group: 'ETC-A'),
+  SessionInput(subject: 'Math', teacher: 'Alice', group: 'ETC-A'),
+  SessionInput(subject: 'Physics', teacher: 'Bob', group: 'ETC-A'),
+]);
+
+// Combine all
+departments.addAll([d1, d2, d3, d4, d5]);
+
+
+}
+
 
   @override
   void dispose() {
@@ -76,353 +105,190 @@ class _TimetablePageState extends State<TimetablePage>
     super.dispose();
   }
 
-  // ---------- Utility builders ----------
-  List<String> getTimeslotIds() {
-    final ids = <String>[];
-    for (final d in days) {
-      for (final p in periods) {
-        ids.add('$d-$p');
-      }
-    }
-    return ids;
-  }
-
-  // ---------- CSP Preprocessing ----------
-  /// Returns a timetable structure:
-  /// { departmentName: { day: { period: TimetableCell } } }
-  Map<String, Map<String, Map<String, TimetableCell>>> applyCSP() {
-    // empty timetable
-    final table = <String, Map<String, Map<String, TimetableCell>>>{};
-    for (final dept in departments) {
-      table[dept.name] = <String, Map<String, TimetableCell>>{};
-      for (final d in days) {
-        table[dept.name]![d] = <String, TimetableCell>{};
-        for (final p in periods) {
-          table[dept.name]![d]![p] = TimetableCell.empty(day: d, period: p);
-        }
-      }
-    }
-
-    // staff schedule per slot to avoid clashes: { 'Mon': {'P1': {teacher1, teacher2}}}
-    final staffSchedule = <String, Map<String, Set<String>>>{};
-    for (final d in days) {
-      staffSchedule[d] = <String, Set<String>>{};
-      for (final p in periods) {
-        staffSchedule[d]![p] = <String>{};
-      }
-    }
-
-    // room schedule per slot: { 'Mon': {'P1': {room1}}}
-    final roomSchedule = <String, Map<String, Set<String>>>{};
-    for (final d in days) {
-      roomSchedule[d] = <String, Set<String>>{};
-      for (final p in periods) {
-        roomSchedule[d]![p] = <String>{};
-      }
-    }
-
-    final rand = Random();
-
-    // assign sessions greedily: iterate days->periods->departments, try assign a session whose teacher free and a room free
-    for (final d in days) {
-      for (final p in periods) {
-        // shuffle department order for variability
-        final deptOrder = List<DepartmentModel>.from(departments)..shuffle(rand);
-        for (final dept in deptOrder) {
-          // select a session candidate randomly from dept.sessions
-          final sessions = List<SessionInput>.from(dept.sessions)..shuffle(rand);
-          var assigned = false;
-          for (final s in sessions) {
-            if (s.teacher != '' && staffSchedule[d]![p]!.contains(s.teacher)) {
-              // teacher busy, skip
-              continue;
-            }
-            // find a free room
-            RoomModel? chosenRoom;
-            for (final r in rooms) {
-              if (!roomSchedule[d]![p]!.contains(r.name)) {
-                chosenRoom = r;
-                break;
-              }
-            }
-            if (chosenRoom == null) {
-              // no room free — cannot assign this slot for this department
-              continue;
-            }
-            // assign
-            table[dept.name]![d]![p] = TimetableCell(
-              subject: s.subject,
-              teacher: s.teacher,
-              group: s.group,
-              room: chosenRoom.name,
-              day: d,
-              period: p,
-            );
-            // mark teacher and room occupied
-            if (s.teacher != '') staffSchedule[d]![p]!.add(s.teacher);
-            roomSchedule[d]![p]!.add(chosenRoom.name);
-            assigned = true;
-            break;
-          }
-          if (!assigned) {
-            // leave Free (already empty)
-            table[dept.name]![d]![p] = TimetableCell.empty(day: d, period: p);
-          }
-        } // dept loop
-      } // period loop
-    } // day loop
-
-    return table;
-  }
-
-  // ---------- GA optimization ----------
-  // We represent a solution same shape as CSP table above.
-
-  double fitness(Map<String, Map<String, Map<String, TimetableCell>>> sol) {
-    // Higher is better.
-    double score = 0.0;
-
-    // 1) Penalize teacher clashes (should be rare due to CSP). Strong penalty.
-    for (final d in days) {
-      for (final p in periods) {
-        final seen = <String, int>{};
-        for (final deptName in sol.keys) {
-          final t = sol[deptName]![d]![p]!;
-          final teacher = t.teacher ?? '';
-          if (teacher.isNotEmpty) {
-            seen[teacher] = (seen[teacher] ?? 0) + 1;
-          }
-        }
-        for (final v in seen.values) {
-          if (v > 1) {
-            score -= (v - 1) * 10.0;
-          }
-        }
-      }
-    }
-
-    // 2) Reward balanced teacher loads (lower variance)
-    final teacherCount = <String, int>{};
-    for (final deptName in sol.keys) {
-      for (final d in days) {
-        for (final p in periods) {
-          final t = sol[deptName]![d]![p]!;
-          final teacher = t.teacher ?? '';
-          if (teacher.isNotEmpty) teacherCount[teacher] = (teacherCount[teacher] ?? 0) + 1;
-        }
-      }
-    }
-    if (teacherCount.isNotEmpty) {
-      final vals = teacherCount.values.map((e) => e.toDouble()).toList();
-      final mean = vals.reduce((a, b) => a + b) / vals.length;
-      final variance = vals.map((v) => (v - mean) * (v - mean)).reduce((a, b) => a + b) / vals.length;
-      // smaller variance = better -> add negative variance penalty
-      score -= variance * 0.5;
-      // reward overall assigned sessions
-      final assigned = teacherCount.values.fold<int>(0, (p, e) => p + e);
-      score += assigned * 0.1;
-    }
-
-    // 3) Penalize empty slots (soft) - encourage filling when possible
-    int empties = 0;
-    for (final deptName in sol.keys) {
-      for (final d in days) {
-        for (final p in periods) {
-          final t = sol[deptName]![d]![p]!;
-          if (t.isEmpty) empties++;
-        }
-      }
-    }
-    score -= empties * 0.05;
-
-    return score;
-  }
-
-  Map<String, Map<String, Map<String, TimetableCell>>> mutateSolution(
-      Map<String, Map<String, Map<String, TimetableCell>>> sol,
-      double mutationRate,
-      Random rng) {
-    final result = deepCopySolution(sol);
-
-    for (final deptName in result.keys) {
-      if (rng.nextDouble() < mutationRate) {
-        final day = days[rng.nextInt(days.length)];
-        final p1 = periods[rng.nextInt(periods.length)];
-        final p2 = periods[rng.nextInt(periods.length)];
-        // swap cells within same dept/day
-        final tmp = result[deptName]![day]![p1]!;
-        result[deptName]![day]![p1] = result[deptName]![day]![p2]!;
-        result[deptName]![day]![p2] = tmp;
-      }
-      // occasional replace with department random session in some slot
-      if (rng.nextDouble() < mutationRate * 0.6) {
-        final deptModel = departments.firstWhere((d) => d.name == deptName);
-        if (deptModel.sessions.isNotEmpty) {
-          final s = deptModel.sessions[rng.nextInt(deptModel.sessions.length)];
-          final day = days[rng.nextInt(days.length)];
-          final p = periods[rng.nextInt(periods.length)];
-          // try assign if teacher not conflicting in that slot across other depts
-          final teacher = s.teacher;
-          var conflict = false;
-          for (final otherDept in result.keys) {
-            if (otherDept == deptName) continue;
-            final other = result[otherDept]![day]![p]!;
-            if (other.teacher == teacher && teacher.isNotEmpty) {
-              conflict = true;
-              break;
-            }
-          }
-          if (!conflict) {
-            // pick a room from available rooms (simple approach)
-            final room = rooms.isNotEmpty ? rooms[rng.nextInt(rooms.length)].name : null;
-            result[deptName]![day]![p] = TimetableCell(
-              subject: s.subject,
-              teacher: s.teacher,
-              group: s.group,
-              room: room,
-              day: day,
-              period: p,
-            );
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  Map<String, Map<String, Map<String, TimetableCell>>> crossoverSolution(
-      Map<String, Map<String, Map<String, TimetableCell>>> a,
-      Map<String, Map<String, Map<String, TimetableCell>>> b,
-      Random rng) {
-    final child = deepCopySolution(a);
-    // swap for a subset of departments or days
-    for (final deptName in child.keys) {
-      if (rng.nextBool()) {
-        // swap random day
-        final day = days[rng.nextInt(days.length)];
-        child[deptName]![day] = deepCopyDay(b[deptName]![day]!);
-      }
-    }
-    return child;
-  }
-
-  Map<String, Map<String, Map<String, TimetableCell>>> deepCopySolution(
-      Map<String, Map<String, Map<String, TimetableCell>>> sol) {
-    final res = <String, Map<String, Map<String, TimetableCell>>>{};
-    for (final deptName in sol.keys) {
-      res[deptName] = <String, Map<String, TimetableCell>>{};
-      for (final d in sol[deptName]!.keys) {
-        res[deptName]![d] = <String, TimetableCell>{};
-        for (final p in sol[deptName]![d]!.keys) {
-          res[deptName]![d]![p] = sol[deptName]![d]![p]!.clone();
-        }
-      }
-    }
-    return res;
-  }
-
-  Map<String, TimetableCell> deepCopyDay(Map<String, TimetableCell> dayMap) {
-    final m = <String, TimetableCell>{};
-    for (final k in dayMap.keys) {
-      m[k] = dayMap[k]!.clone();
-    }
-    return m;
-  }
-
-  // create initial population derived from CSP solution
-  List<Map<String, Map<String, Map<String, TimetableCell>>>> buildInitialPopulation(
-      Map<String, Map<String, Map<String, TimetableCell>>> csp,
-      int popSize,
-      Random rng) {
-    final pop = <Map<String, Map<String, Map<String, TimetableCell>>>>[];
-    for (int i = 0; i < popSize; i++) {
-      final ind = deepCopySolution(csp);
-      // apply a few random swaps to diversify
-      final swaps = 2 + rng.nextInt(5);
-      for (int j = 0; j < swaps; j++) {
-        final dept = ind.keys.elementAt(rng.nextInt(ind.keys.length));
-        final day = days[rng.nextInt(days.length)];
-        final p1 = periods[rng.nextInt(periods.length)];
-        final p2 = periods[rng.nextInt(periods.length)];
-        final tmp = ind[dept]![day]![p1]!;
-        ind[dept]![day]![p1] = ind[dept]![day]![p2]!;
-        ind[dept]![day]![p2] = tmp;
-      }
-      pop.add(ind);
-    }
-    return pop;
-  }
-
-  Future<void> runHybridSolver({int popSize = 30, int generations = 80, double mutationRate = 0.08}) async {
+  // ---------- Add department ----------
+  void _addDepartment(String name) {
+    if (name.trim().isEmpty) return;
+    String short = name.trim().split(' ').map((w) => w.isNotEmpty ? w[0] : '').join();
+    if (short.isEmpty) short = name.trim().substring(0, min(2, name.trim().length));
+    short = short.toUpperCase();
+    final defaultSection = '$short-A';
     setState(() {
-      _isGenerating = true;
-      _status = 'Running CSP...';
-      timetableResult = null;
+      departments.add(DepartmentModel(name: name.trim(), groups: [defaultSection]));
+      _deptCtl.clear();
     });
+  }
 
-    // 1. CSP
-    final csp = applyCSP();
-    await Future<void>.delayed(const Duration(milliseconds: 150)); // small pause for UX
+  // ---------- Solver ----------
+// ---------- Solver ----------
+void runHybridSolver({
+  required int popSize,
+  required int generations,
+  required double mutationRate,
+}) {
+  setState(() {
+    _isGenerating = true;
+    _status = 'Generating timetable...';
+  });
 
-    setState(() {
-      _status = 'Preparing GA population...';
-    });
+  Future.delayed(const Duration(milliseconds: 500), () async {
+    bool teacherClashExists = true;
+    int attempts = 0;
+    const maxAttempts = 1000;
 
-    final rng = Random();
-    var population = buildInitialPopulation(csp, popSize, rng);
+    while (teacherClashExists && attempts < maxAttempts) {
+      attempts++;
 
-    // simple GA loop
-    Map<String, Map<String, Map<String, TimetableCell>>> best = population[0];
-    double bestScore = -double.infinity;
+      final Map<String, Map<String, Map<String, TimetableCell>>> result = {};
 
-    for (int gen = 0; gen < generations; gen++) {
-      if (!mounted) break;
-      // evaluate fitness
-      final scored = <MapEntry<Map<String, Map<String, Map<String, TimetableCell>>>, double>>[];
-      for (final ind in population) {
-        final s = fitness(ind);
-        scored.add(MapEntry(ind, s));
-        if (s > bestScore) {
-          bestScore = s;
-          best = deepCopySolution(ind);
+      for (var dept in departments) {
+        result[dept.name] = {};
+
+        for (var day in days) {
+          result[dept.name]![day] = {};
+
+          for (int p = 0; p < periodsPerDay; p++) {
+            // Filter sessions where teacher is free
+            final availableSessions = dept.sessions
+                .where((s) => !isTeacherBusy(s.teacher, day, 'P${p + 1}', result))
+                .toList();
+
+            if (availableSessions.isNotEmpty) {
+              final s = availableSessions[Random().nextInt(availableSessions.length)];
+              result[dept.name]![day]!['P${p + 1}'] = TimetableCell(
+                subject: s.subject,
+                teacher: s.teacher,
+                group: s.group,
+                room: rooms.isNotEmpty
+                    ? rooms[Random().nextInt(rooms.length)].name
+                    : 'R1',
+                day: day,
+                period: 'P${p + 1}',
+              );
+            } else {
+              // No teacher available → leave empty
+              result[dept.name]![day]!['P${p + 1}'] =
+                  TimetableCell.empty(day: day, period: 'P${p + 1}');
+            }
+          }
         }
       }
-      // sort descending
-      scored.sort((a, b) => b.value.compareTo(a.value));
-      // take top 30%
-      final retainCount = max(2, (scored.length * 0.3).floor());
-      final nextGen = <Map<String, Map<String, Map<String, TimetableCell>>>>[];
-      for (int i = 0; i < retainCount; i++) nextGen.add(scored[i].key);
 
-      // generate rest by crossover + mutation from top half
-      while (nextGen.length < popSize) {
-        final parents = scored.sublist(0, max(2, (scored.length / 2).floor()));
-        final p1 = parents[rng.nextInt(parents.length)].key;
-        final p2 = parents[rng.nextInt(parents.length)].key;
-        final child = crossoverSolution(p1, p2, rng);
-        final mutated = mutateSolution(child, mutationRate, rng);
-        nextGen.add(mutated);
-      }
+      timetableResult = result;
 
-      population = nextGen;
+      // Check teacher clashes
+      final clashes = analyzeClashesDetailed();
+      teacherClashExists = clashes['teacher']!.isNotEmpty;
 
-      // update UI periodically
-      if (gen % max(1, (generations / 8).floor()) == 0) {
-        setState(() {
-          _status = 'GA gen ${gen + 1}/$generations — best=${bestScore.toStringAsFixed(2)}';
-        });
-        // small delay to keep UI responsive
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
+      // Update status live
+      setState(() {
+        _status =
+            'Generating timetable... Attempts: $attempts, Clashes: ${clashes['teacher']!.length}';
+      });
+
+      // Optional: small delay to let UI update
+      await Future.delayed(const Duration(milliseconds: 10));
     }
 
     setState(() {
       _isGenerating = false;
-      timetableResult = best;
-      _status = 'Done — best score ${bestScore.toStringAsFixed(2)}';
-      _tabController.animateTo(2);
+      _status = teacherClashExists
+          ? 'Failed to generate clash-free timetable after $attempts attempts. Increase rooms/periods.'
+          : 'Clash-free timetable generated after $attempts attempt(s)!';
+      _tabController.animateTo(2); // Show timetable
     });
+  });
+}
+
+// ---------- Helper: Check if teacher is busy ----------
+bool isTeacherBusy(String teacher, String day, String period,
+    Map<String, Map<String, Map<String, TimetableCell>>> currentResult) {
+  for (var deptMap in currentResult.values) {
+    if (deptMap[day]?[period]?.teacher == teacher) return true;
+  }
+  return false;
+}
+
+
+  // ---------- Analyze Clashes ----------
+  Map<String, List<String>> analyzeClashesDetailed() {
+    final Map<String, List<String>> clashes = {
+      'teacher': [],
+      'group': [],
+      'room': [],
+    };
+    if (timetableResult == null) return clashes;
+
+    final Map<String, Set<String>> teacherMap = {};
+    final Map<String, Set<String>> groupMap = {};
+    final Map<String, Set<String>> roomMap = {};
+
+    timetableResult!.forEach((deptName, dayMap) {
+      dayMap.forEach((day, periodMap) {
+        periodMap.forEach((period, cell) {
+          if (cell.isEmpty) return;
+          final key = '$day-$period';
+
+          teacherMap[cell.teacher ?? ''] ??= {};
+          if (!teacherMap[cell.teacher!]!.add(key)) {
+            clashes['teacher']!.add('${cell.teacher} clash at $key');
+          }
+
+          groupMap[cell.group ?? ''] ??= {};
+          if (!groupMap[cell.group!]!.add(key)) {
+            clashes['group']!.add('${cell.group} clash at $key');
+          }
+
+          roomMap[cell.room ?? ''] ??= {};
+          if (!roomMap[cell.room!]!.add(key)) {
+            clashes['room']!.add('${cell.room} clash at $key');
+          }
+        });
+      });
+    });
+
+    return clashes;
+  }
+
+  // ---------- PDF Export ----------
+  Future<void> exportPDF() async {
+    if (timetableResult == null) return;
+    final pdf = pw.Document();
+
+    timetableResult!.forEach((deptName, dayMap) {
+      pdf.addPage(pw.Page(
+          pageFormat: PdfPageFormat.a4.landscape,
+          build: (pw.Context context) {
+            return pw.Column(children: [
+              pw.Text(deptName,
+                  style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.teal)),
+              pw.SizedBox(height: 8),
+              pw.Table.fromTextArray(
+                  headers: ['Day', ...periods],
+                  data: [
+                    for (var d in days)
+                      [
+                        d,
+                        ...periods.map((p) {
+                          final cell = dayMap[d]![p]!;
+                          if (cell.isEmpty) return 'Free';
+                          return '${cell.subject}\n${cell.teacher}\n${cell.group}\n${cell.room}';
+                        })
+                      ]
+                  ],
+                  cellStyle: pw.TextStyle(fontSize: 10),
+                  headerStyle: pw.TextStyle(
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.teal),
+                  cellAlignment: pw.Alignment.centerLeft),
+            ]);
+          }));
+    });
+
+    await Printing.layoutPdf(onLayout: (format) async => pdf.save());
   }
 
   // ---------- UI ----------
@@ -430,14 +296,18 @@ class _TimetablePageState extends State<TimetablePage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1F1F1F),
         title: const Text('Generate Student TimeTable'),
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: Colors.tealAccent,
           tabs: const [
             Tab(icon: Icon(Icons.business), text: 'Departments'),
             Tab(icon: Icon(Icons.play_arrow), text: 'Generate'),
             Tab(icon: Icon(Icons.grid_on), text: 'Timetable'),
+            Tab(icon: Icon(Icons.warning), text: 'Clashes'),
           ],
         ),
       ),
@@ -447,33 +317,46 @@ class _TimetablePageState extends State<TimetablePage>
           _buildDepartmentsTab(),
           _buildGenerateTab(),
           _buildTimetableTab(),
+          _buildClashesTab(),
         ],
       ),
     );
   }
 
+  // ---------- Departments Tab ----------
   Widget _buildDepartmentsTab() {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(children: [
         Row(children: [
-          Expanded(child: TextField(controller: _deptCtl, decoration: const InputDecoration(hintText: 'Department name'))),
+          Expanded(
+            child: TextField(
+              controller: _deptCtl,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                  hintText: 'Department name', hintStyle: TextStyle(color: Colors.grey)),
+            ),
+          ),
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
               final name = _deptCtl.text.trim();
               if (name.isEmpty) return;
-              setState(() {
-                departments.add(DepartmentModel(name: name));
-                _deptCtl.clear();
-              });
+              _addDepartment(name);
             },
             child: const Text('Add Dept'),
           ),
         ]),
         const SizedBox(height: 12),
         Row(children: [
-          Expanded(child: TextField(controller: _roomCtl, decoration: const InputDecoration(hintText: 'Room name (optional)'))),
+          Expanded(
+            child: TextField(
+              controller: _roomCtl,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                  hintText: 'Room name', hintStyle: TextStyle(color: Colors.grey)),
+            ),
+          ),
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
@@ -487,9 +370,6 @@ class _TimetablePageState extends State<TimetablePage>
             child: const Text('Add Room'),
           ),
         ]),
-        const SizedBox(height: 8),
-        Align(alignment: Alignment.centerLeft, child: Text('Rooms: ${rooms.map((r) => r.name).join(", ")}',
-            style: const TextStyle(fontStyle: FontStyle.italic))),
         const SizedBox(height: 12),
         Expanded(
           child: ListView.builder(
@@ -497,74 +377,97 @@ class _TimetablePageState extends State<TimetablePage>
             itemBuilder: (ctx, idx) {
               final dept = departments[idx];
               return Card(
+                color: const Color(0xFF1E1E1E),
                 child: ExpansionTile(
-                  title: Row(children: [
-                    Expanded(child: Text(dept.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                    IconButton(
-                      icon: const Icon(Icons.delete_forever, color: Colors.redAccent),
-                      onPressed: () {
-                        setState(() => departments.removeAt(idx));
-                      },
-                    ),
-                  ]),
+                  key: ValueKey(dept.name + idx.toString()),
+                  textColor: Colors.white,
+                  iconColor: Colors.tealAccent,
+                  title: Text(dept.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text('Sessions', style: TextStyle(fontWeight: FontWeight.w600)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Sessions',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, color: Colors.tealAccent)),
+                            TextButton.icon(
+                              icon: const Icon(Icons.add, color: Colors.tealAccent),
+                              label: const Text('Add Session',
+                                  style: TextStyle(color: Colors.tealAccent)),
+                              onPressed: () {
+                                _showAddSessionDialog(dept);
+                              },
+                            )
+                          ],
+                        ),
                         const SizedBox(height: 8),
                         ...dept.sessions.asMap().entries.map((e) {
                           final s = e.value;
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text('${s.subject}'),
-                            subtitle: Text('${s.teacher} • ${s.group}'),
+                            title: Text('${s.subject}', style: const TextStyle(color: Colors.white)),
+                            subtitle: Text('${s.teacher} • ${s.group}',
+                                style: const TextStyle(color: Colors.grey)),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Colors.redAccent),
-                              onPressed: () => setState(() => dept.sessions.removeAt(e.key)),
+                              onPressed: () {
+                                setState(() {
+                                  dept.sessions.removeAt(e.key);
+                                });
+                              },
                             ),
                           );
-                        }),
-                        const Divider(),
-                        _SessionAdder(
-                          onAdd: (subject, teacher, group) {
-                            setState(() {
-                              dept.sessions.add(SessionInput(subject: subject, teacher: teacher, group: group));
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('Groups: ${dept.groups.join(", ")}', style: const TextStyle(fontStyle: FontStyle.italic)),
+                        }).toList(),
+                        const Divider(color: Colors.grey),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Sections',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, color: Colors.tealAccent)),
+                            Row(children: [
+                              TextButton.icon(
+                                icon: const Icon(Icons.group_add, color: Colors.tealAccent),
+                                label: const Text('Add Section',
+                                    style: TextStyle(color: Colors.tealAccent)),
+                                onPressed: () {
+                                  _showAddSectionDialog(dept);
+                                },
+                              ),
+                              const SizedBox(width: 6),
+                              TextButton.icon(
+                                icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
+                                label: const Text('Remove', style: TextStyle(color: Colors.redAccent)),
+                                onPressed: () {
+                                  if (dept.groups.isNotEmpty) {
+                                    setState(() {
+                                      dept.groups.removeLast();
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('No sections to remove')));
+                                  }
+                                },
+                              ),
+                            ])
+                          ],
                         ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  final g = 'G${dept.groups.length + 1}';
-                                  dept.groups.add(g);
-                                });
-                              },
-                              icon: const Icon(Icons.group_add),
-                              label: const Text('Add Group'),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                if (dept.groups.isNotEmpty) {
-                                  setState(() {
-                                    dept.groups.removeLast();
-                                  });
-                                }
-                              },
-                              icon: const Icon(Icons.remove_circle_outline),
-                              label: const Text('Remove Group'),
-                            ),
-                          ],
+                          children: dept.groups
+                              .map((g) => Chip(
+                                    label: Text(g, style: const TextStyle(color: Colors.white)),
+                                    backgroundColor: const Color(0xFF2A2A2A),
+                                  ))
+                              .toList(),
                         ),
+                        const SizedBox(height: 8),
+                        Text('Rooms: ${rooms.map((r) => r.name).join(", ")}',
+                            style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
                       ]),
                     ),
                   ],
@@ -577,71 +480,145 @@ class _TimetablePageState extends State<TimetablePage>
     );
   }
 
+  void _showAddSessionDialog(DepartmentModel dept) {
+    final _subj = TextEditingController();
+    final _teacher = TextEditingController();
+    final _group = TextEditingController();
+    if (dept.groups.isNotEmpty) _group.text = dept.groups.first;
+
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF0B2430),
+            title: const Text('Add Session', style: TextStyle(color: Colors.white)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _subj,
+                  decoration: const InputDecoration(labelText: 'Subject', labelStyle: TextStyle(color: Colors.white70)),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _teacher,
+                  decoration: const InputDecoration(labelText: 'Teacher', labelStyle: TextStyle(color: Colors.white70)),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _group,
+                  decoration: const InputDecoration(labelText: 'Group/Section', labelStyle: TextStyle(color: Colors.white70)),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+              ),
+              TextButton(
+                onPressed: () {
+                  final subj = _subj.text.trim();
+                  final teacher = _teacher.text.trim();
+                  final group = _group.text.trim();
+                  if (subj.isEmpty || teacher.isEmpty || group.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter subject, teacher and group')));
+                    return;
+                  }
+                  setState(() {
+                    dept.sessions.add(SessionInput(subject: subj, teacher: teacher, group: group));
+                    if (!dept.groups.contains(group)) dept.groups.add(group);
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Add', style: TextStyle(color: Colors.greenAccent)),
+              ),
+            ],
+          );
+        });
+  }
+
+  void _showAddSectionDialog(DepartmentModel dept) {
+    final _g = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF0B2430),
+            title: const Text('Add Section', style: TextStyle(color: Colors.white)),
+            content: TextField(
+              controller: _g,
+              decoration: const InputDecoration(labelText: 'Section name (e.g., CS-A)', labelStyle: TextStyle(color: Colors.white70)),
+              style: const TextStyle(color: Colors.white),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: Colors.redAccent))),
+              TextButton(
+                  onPressed: () {
+                    final val = _g.text.trim();
+                    if (val.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter section name')));
+                      return;
+                    }
+                    setState(() {
+                      if (!dept.groups.contains(val)) dept.groups.add(val);
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Add', style: TextStyle(color: Colors.greenAccent))),
+            ],
+          );
+        });
+  }
+
+  // ---------- Generate Tab ----------
   Widget _buildGenerateTab() {
-    final preview = jsonEncode(_previewRequest());
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(children: [
         Expanded(
-          child: SingleChildScrollView(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: SelectableText(JsonEncoder.withIndent('  ').convert(_previewRequest())),
+          child: Card(
+            color: const Color(0xFF1E1E1E),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: SelectableText(
+                jsonEncode(_previewRequest()),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ),
         ),
         Row(
           children: [
-            const Text('Periods/day:'),
+            const Text('Periods/day:', style: TextStyle(color: Colors.white)),
             const SizedBox(width: 8),
             Expanded(
               child: Slider(
                 min: 4,
-                max: 8,
-                divisions: 4,
+                max: 10,
+                divisions: 6,
                 value: periodsPerDay.toDouble(),
                 label: periodsPerDay.toString(),
                 onChanged: (v) {
-                  setState(() {
-                    periodsPerDay = v.round();
-                  });
+                  setState(() => periodsPerDay = v.toInt());
                 },
               ),
             ),
-            const SizedBox(width: 8),
-            Text('$periodsPerDay'),
+            ElevatedButton(
+              onPressed: _isGenerating
+                  ? null
+                  : () {
+                      runHybridSolver(popSize: 50, generations: 200, mutationRate: 0.1);
+                    },
+              child: const Text('Generate Timetable'),
+            )
           ],
         ),
         const SizedBox(height: 8),
-        _isGenerating
-            ? Column(children: [
-                Text(_status),
-                const SizedBox(height: 8),
-                const LinearProgressIndicator(),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // do nothing for now (we don't implement cancellation)
-                  },
-                  icon: const Icon(Icons.hourglass_bottom),
-                  label: const Text('Generating...'),
-                )
-              ])
-            : Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => runHybridSolver(popSize: 28, generations: 100, mutationRate: 0.08),
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Generate Timetable (Local CSP+GA)'),
-                    ),
-                  ),
-                ],
-              ),
-        const SizedBox(height: 8),
-        Text(_status, style: const TextStyle(fontStyle: FontStyle.italic)),
+        Text(_status, style: const TextStyle(color: Colors.tealAccent)),
       ]),
     );
   }
@@ -650,169 +627,130 @@ class _TimetablePageState extends State<TimetablePage>
     return {
       'departments': departments.map((d) => d.toJson()).toList(),
       'rooms': rooms.map((r) => r.toJson()).toList(),
-      'days': days,
       'periodsPerDay': periodsPerDay,
     };
   }
 
+  // ---------- Timetable Tab ----------
   Widget _buildTimetableTab() {
-    if (timetableResult == null) {
-      return const Center(child: Text('No timetable generated yet. Use Generate tab.'));
-    }
-
-    final entries = timetableResult!.entries.toList();
-    return ListView.builder(
+    if (timetableResult == null) return const Center(child: Text('No timetable generated', style: TextStyle(color: Colors.white)));
+    return ListView(
       padding: const EdgeInsets.all(12),
-      itemCount: entries.length,
-      itemBuilder: (ctx, idx) {
-        final deptName = entries[idx].key;
-        final dayMap = entries[idx].value; // Map<String, Map<String, TimetableCell>>
-        // compute max periods (should be periodsPerDay)
-        final maxCols = periodsPerDay;
-
+      children: timetableResult!.entries.map((deptEntry) {
+        final dayMap = deptEntry.value;
         return Card(
+          color: const Color(0xFF1E1E1E),
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(deptName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Table(
-                  border: TableBorder.all(color: Colors.grey.shade300),
-                  defaultColumnWidth: const IntrinsicColumnWidth(),
-                  children: [
-                    TableRow(children: [
-                      const Padding(padding: EdgeInsets.all(8), child: Text('Day', style: TextStyle(fontWeight: FontWeight.w700))),
-                      for (int c = 0; c < maxCols; c++)
-                        Padding(padding: const EdgeInsets.all(8), child: Text('P${c + 1}', style: const TextStyle(fontWeight: FontWeight.w700))),
-                    ]),
-                    for (final d in days)
-                      TableRow(children: [
-                        Padding(padding: const EdgeInsets.all(8), child: Text(d, style: const TextStyle(fontWeight: FontWeight.w600))),
-                        for (int c = 0; c < maxCols; c++)
-                          Padding(
-                            padding: const EdgeInsets.all(6),
-                            child: _renderCell(dayMap[d]![periods[c]]!),
-                          ),
-                      ]),
-                  ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(deptEntry.key,
+                    style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: MaterialStateColor.resolveWith((_) => const Color(0xFF2A2A2A)),
+                    columnSpacing: 12,
+                    columns: [
+                      const DataColumn(label: Text('Day', style: TextStyle(color: Colors.white))),
+                      ...periods.map((p) => DataColumn(label: Text(p, style: const TextStyle(color: Colors.white)))),
+                    ],
+                    rows: days.map((day) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(day, style: const TextStyle(color: Colors.white))),
+                          ...periods.map((p) {
+                            final cell = dayMap[day]![p]!;
+                            return DataCell(Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: _renderCellColor(cell),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                cell.isEmpty
+                                    ? 'Free'
+                                    : '${cell.subject}\n${cell.teacher}\n${cell.group}\n${cell.room}',
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                              ),
+                            ));
+                          }).toList(),
+                        ],
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-            ]),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                    onPressed: exportPDF,
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Export PDF')),
+              ],
+            ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 
-  Widget _renderCell(TimetableCell cell) {
-    if (cell.isEmpty) {
-      return Container(
-        width: 160,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
-        child: const Text('Free', style: TextStyle(color: Colors.grey)),
-      );
+  Color _renderCellColor(TimetableCell cell) {
+    if (cell.isEmpty) return const Color(0xFF1E1E1E);
+    final clashes = analyzeClashesDetailed();
+    final key = '${cell.day}-${cell.period}';
+    if (clashes['teacher']!.any((c) => c.contains(key)) ||
+        clashes['group']!.any((c) => c.contains(key)) ||
+        clashes['room']!.any((c) => c.contains(key))) {
+      return Colors.redAccent.shade700;
     }
-    final color = _colorForSubject(cell.subject ?? '');
-    return Container(
-      width: 160,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(color: color.withOpacity(0.9), borderRadius: BorderRadius.circular(6)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(cell.subject ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        Text(cell.teacher ?? '', style: const TextStyle(fontSize: 12)),
-        Text(cell.group ?? '', style: const TextStyle(fontSize: 12)),
-        const SizedBox(height: 6),
-        Text(cell.room ?? '-', style: const TextStyle(fontSize: 11, color: Colors.blueGrey)),
-      ]),
+    return const Color(0xFF2A2A2A);
+  }
+
+  // ---------- Clashes Tab ----------
+  Widget _buildClashesTab() {
+    final clashes = analyzeClashesDetailed();
+    if (clashes.values.every((list) => list.isEmpty)) {
+      return const Center(child: Text('No clashes found!', style: TextStyle(color: Colors.greenAccent)));
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: clashes.entries
+          .where((e) => e.value.isNotEmpty)
+          .map((entry) => Card(
+                color: const Color(0xFF1E1E1E),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${entry.key.toUpperCase()} Clashes',
+                          style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      ...entry.value.map((c) => Text(c, style: const TextStyle(color: Colors.white70))),
+                    ],
+                  ),
+                ),
+              ))
+          .toList(),
     );
   }
-
-  Color _colorForSubject(String subject) {
-    if (subject.isEmpty) return Colors.grey.shade200;
-    final seed = subject.codeUnits.fold<int>(0, (p, e) => p + e);
-    final rng = Random(seed);
-    final hue = rng.nextInt(360);
-    return HSVColor.fromAHSV(1, hue.toDouble(), 0.45, 0.95).toColor();
-  }
 }
 
-// ---------- Small helper widget to add a session ----------
-class _SessionAdder extends StatefulWidget {
-  final void Function(String subject, String teacher, String group) onAdd;
-  const _SessionAdder({required this.onAdd});
-
-  @override
-  State<_SessionAdder> createState() => _SessionAdderState();
-}
-
-
-class _SessionAdderState extends State<_SessionAdder> {
-  final TextEditingController _subj = TextEditingController();
-  final TextEditingController _teacher = TextEditingController();
-  final TextEditingController _group = TextEditingController();
-
-  @override
-  void dispose() {
-    _subj.dispose();
-    _teacher.dispose();
-    _group.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      TextField(controller: _subj, decoration: const InputDecoration(hintText: 'Subject')),
-      const SizedBox(height: 8),
-      Row(children: [
-        Expanded(child: TextField(controller: _teacher, decoration: const InputDecoration(hintText: 'Teacher'))),
-        const SizedBox(width: 8),
-        Expanded(child: TextField(controller: _group, decoration: const InputDecoration(hintText: 'Group'))),
-      ]),
-      const SizedBox(height: 8),
-      Align(
-        alignment: Alignment.centerLeft,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            final subj = _subj.text.trim();
-            final teacher = _teacher.text.trim();
-            final group = _group.text.trim();
-            if (subj.isEmpty || teacher.isEmpty || group.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter subject, teacher and group')));
-              return;
-            }
-            widget.onAdd(subj, teacher, group);
-            _subj.clear();
-            _teacher.clear();
-            _group.clear();
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('Add Session'),
-        ),
-      )
-    ]);
-  }
-}
-
-// ---------- Models ----------
-class SessionInput {
-  String subject;
-  String teacher;
-  String group;
-  SessionInput({required this.subject, required this.teacher, required this.group});
-  Map<String, dynamic> toJson() => {'subject': subject, 'teacher': teacher, 'group': group};
-}
+// ---------------- Models ----------------
 
 class DepartmentModel {
   String name;
-  List<String> groups = [];
+  List<String> groups;
   List<SessionInput> sessions = [];
-  DepartmentModel({required this.name});
-  Map<String, dynamic> toJson() => {'name': name, 'groups': groups, 'sessions': sessions.map((s) => s.toJson()).toList()};
+  DepartmentModel({required this.name, required this.groups});
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'groups': groups,
+        'sessions': sessions.map((s) => s.toJson()).toList(),
+      };
 }
 
 class RoomModel {
@@ -821,42 +759,33 @@ class RoomModel {
   Map<String, dynamic> toJson() => {'name': name};
 }
 
-/// The timetable cell assigned to a timeslot for a department
+class SessionInput {
+  String subject;
+  String teacher;
+  String group;
+  SessionInput({required this.subject, required this.teacher, required this.group});
+  Map<String, dynamic> toJson() => {'subject': subject, 'teacher': teacher, 'group': group};
+}
+
 class TimetableCell {
-  final String? subject;
-  final String? teacher;
-  final String? group;
-  final String? room;
-  final String day;
-  final String period;
+  String? subject;
+  String? teacher;
+  String? group;
+  String? room;
+  String day;
+  String period;
 
-  TimetableCell({
-    required this.subject,
-    required this.teacher,
-    required this.group,
-    required this.room,
-    required this.day,
-    required this.period,
-  });
+  TimetableCell(
+      {required this.subject,
+      required this.teacher,
+      required this.group,
+      required this.room,
+      required this.day,
+      required this.period});
 
-  TimetableCell.empty({required this.day, required this.period})
-      : subject = null,
-        teacher = null,
-        group = null,
-        room = null;
+  bool get isEmpty => subject == null && teacher == null && group == null && room == null;
 
-  bool get isEmpty => subject == null || subject!.isEmpty;
-
-  TimetableCell clone() {
-    return TimetableCell(subject: subject, teacher: teacher, group: group, room: room, day: day, period: period);
+  factory TimetableCell.empty({required String day, required String period}) {
+    return TimetableCell(subject: null, teacher: null, group: null, room: null, day: day, period: period);
   }
-
-  Map<String, dynamic> toJson() => {
-        'subject': subject,
-        'teacher': teacher,
-        'group': group,
-        'room': room,
-        'day': day,
-        'period': period,
-      };
 }
